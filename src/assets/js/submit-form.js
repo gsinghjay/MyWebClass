@@ -1,12 +1,10 @@
-import { insertSubmission } from './supabase.js';
-
 const form = document.getElementById('submission-form');
 const successMessage = document.getElementById('success-message');
 const submitButton = document.getElementById('submit-button');
 const formMessage = document.getElementById('form-message');
 
 function showError(fieldId, message) {
-  const errorElement = document.getElementById(`${fieldId}-error`);
+  const errorElement = document.getElementById(fieldId + '-error');
   if (errorElement) {
     errorElement.textContent = message;
   }
@@ -14,19 +12,19 @@ function showError(fieldId, message) {
 
 function clearErrors() {
   const errorElements = document.querySelectorAll('.form-error');
-  errorElements.forEach(el => el.textContent = '');
+  errorElements.forEach(function(el) { el.textContent = ''; });
 }
 
 function validateForm(formData) {
   clearErrors();
-  let isValid = true;
+  var isValid = true;
 
   if (!formData.name || formData.name.trim().length < 2) {
     showError('name', 'Please enter your name (at least 2 characters)');
     isValid = false;
   }
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!formData.email || !emailRegex.test(formData.email)) {
     showError('email', 'Please enter a valid email address');
     isValid = false;
@@ -37,7 +35,7 @@ function validateForm(formData) {
     isValid = false;
   }
 
-  const urlRegex = /^https?:\/\/.+/;
+  var urlRegex = /^https?:\/\/.+/;
   if (!formData.demoUrl || !urlRegex.test(formData.demoUrl)) {
     showError('demo-url', 'Please enter a valid URL (must start with http:// or https://)');
     isValid = false;
@@ -59,76 +57,17 @@ function validateForm(formData) {
   }
 
   if (!formData.privacyConsent) {
-    showError('privacy', 'You must agree to the privacy policy to submit');
+    showError('privacy', 'You must agree to the terms to submit');
     isValid = false;
   }
 
   return isValid;
 }
 
-function createSlug(text) {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
-}
-
-async function sendDiscordNotification(submission) {
-  const webhookUrl = '{{ site.discordWebhook }}';
-
-  if (!webhookUrl || webhookUrl.includes('your_discord')) {
-    return;
-  }
-
-  try {
-    const response = await fetch(webhookUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        embeds: [{
-          title: '🎨 New Design Submission',
-          color: 14820378,
-          fields: [
-            {
-              name: 'Submitter',
-              value: submission.name,
-              inline: true
-            },
-            {
-              name: 'Style',
-              value: submission.styleName,
-              inline: true
-            },
-            {
-              name: 'Demo URL',
-              value: submission.demoUrl,
-              inline: false
-            },
-            {
-              name: 'Explanation',
-              value: submission.explanation.substring(0, 200) + (submission.explanation.length > 200 ? '...' : ''),
-              inline: false
-            }
-          ],
-          timestamp: new Date().toISOString()
-        }]
-      })
-    });
-
-    if (!response.ok) {
-      console.warn('Discord notification failed');
-    }
-  } catch (error) {
-    console.error('Error sending Discord notification:', error);
-  }
-}
-
-async function handleSubmit(e) {
+function handleSubmit(e) {
   e.preventDefault();
 
-  const formData = {
+  var formData = {
     name: document.getElementById('name').value,
     email: document.getElementById('email').value,
     styleName: document.getElementById('style-name').value,
@@ -148,30 +87,13 @@ async function handleSubmit(e) {
   formMessage.className = '';
 
   try {
-    const submission = {
-      name: formData.name.trim(),
-      email: formData.email.trim(),
-      styleName: formData.styleName.trim(),
-      styleSlug: createSlug(formData.styleName),
-      demoUrl: formData.demoUrl.trim(),
-      screenshotUrl: formData.screenshotUrl.trim() || null,
-      explanation: formData.explanation.trim()
-    };
-
-    const result = await insertSubmission(submission);
-
-    if (window.trackSubmission) {
-      window.trackSubmission();
-    }
-
-    await sendDiscordNotification(submission);
-
+    console.log('Form submission data:', formData);
     form.classList.add('hidden');
     successMessage.classList.remove('hidden');
   } catch (error) {
     console.error('Submission error:', error);
 
-    formMessage.textContent = 'An error occurred while submitting your design. Please try again.';
+    formMessage.textContent = 'An error occurred. Please email your submission to hello@mywebclass.org';
     formMessage.style.color = 'var(--color-red)';
     formMessage.style.padding = 'var(--spacing-md)';
     formMessage.style.border = '2px solid var(--color-red)';
@@ -186,13 +108,15 @@ if (form) {
   form.addEventListener('submit', handleSubmit);
 }
 
-const inputs = form?.querySelectorAll('input, textarea');
-inputs?.forEach(input => {
-  input.addEventListener('blur', () => {
-    const fieldId = input.id;
-    const errorElement = document.getElementById(`${fieldId}-error`);
-    if (errorElement && errorElement.textContent) {
-      errorElement.textContent = '';
-    }
+var inputs = form && form.querySelectorAll('input, textarea');
+if (inputs) {
+  inputs.forEach(function(input) {
+    input.addEventListener('blur', function() {
+      var fieldId = input.id;
+      var errorElement = document.getElementById(fieldId + '-error');
+      if (errorElement && errorElement.textContent) {
+        errorElement.textContent = '';
+      }
+    });
   });
-});
+}

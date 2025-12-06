@@ -11,26 +11,22 @@
   <meta property="og:type" content="website">
   <meta property="og:url" content="{{ site.url }}{{ page.url }}">
 
-  <meta name="supabase-url" content="{{ site.supabase.url }}">
-  <meta name="supabase-key" content="{{ site.supabase.anonKey }}">
-
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/assets/css/style.css">
 
   {% block head %}{% endblock %}
 </head>
 <body>
-  {% include "partials/header.njk" %}
-  {% include "partials/cookie-consent.njk" %}
+  {% include "components/header.njk" %}
 
   <main id="main-content">
-    {% block content %}{% endblock %}
+    {{ content | safe }}
   </main>
 
-  {% include "partials/footer.njk" %}
+  {% include "components/footer.njk" %}
 
-  <script src="/js/supabase.js" type="module"></script>
-  <script src="/js/consent.js" type="module"></script>
-  <script src="/js/analytics.js" type="module"></script>
+  {% include "components/cookie-consent.njk" %}
+
+  <script src="/assets/js/consent.js"></script>
   {% block scripts %}{% endblock %}
 </body>
 </html>

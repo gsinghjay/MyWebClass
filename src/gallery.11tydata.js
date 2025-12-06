@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   pagination: {
     data: 'designStyles',
     size: 1,

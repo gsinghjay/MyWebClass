@@ -145,6 +145,10 @@
   margin-top: var(--spacing-xs);
 }
 
+.form-error:empty {
+  display: none;
+}
+
 .cookie-consent {
   position: fixed;
   bottom: 0;
@@ -155,11 +159,14 @@
   padding: var(--spacing-lg);
   z-index: 1000;
   transform: translateY(100%);
-  transition: transform var(--transition-base);
+  transition: transform var(--transition-base), visibility 0s var(--transition-base);
+  visibility: hidden;
 }
 
 .cookie-consent.visible {
   transform: translateY(0);
+  visibility: visible;
+  transition: transform var(--transition-base), visibility 0s;
 }
 
 .cookie-consent-content {
@@ -254,4 +261,203 @@
   height: 20px;
   flex-shrink: 0;
   margin-top: 4px;
+}
+
+/* Demo Showcase */
+.demo-showcase {
+  margin-top: var(--spacing-xl);
+}
+
+.demo-frame-container {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%; /* 16:9 aspect ratio */
+  background-color: var(--color-gray-200);
+  border: 2px solid var(--color-black);
+}
+
+.demo-frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.demo-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-lg);
+  flex-wrap: wrap;
+}
+
+/* Content Grid */
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-2xl);
+}
+
+@media (min-width: 768px) {
+  .content-grid {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+.content-main h2 {
+  margin-top: 0;
+  margin-bottom: var(--spacing-lg);
+}
+
+.content-main h3 {
+  margin-top: var(--spacing-xl);
+  margin-bottom: var(--spacing-md);
+}
+
+.content-main ul {
+  margin-bottom: var(--spacing-lg);
+  padding-left: var(--spacing-lg);
+}
+
+.content-main li {
+  margin-bottom: var(--spacing-sm);
+}
+
+/* Info Card */
+.info-card {
+  background-color: var(--color-gray-100);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.info-card h4 {
+  margin-top: 0;
+  margin-bottom: var(--spacing-md);
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.info-card dl {
+  margin: 0;
+}
+
+.info-card dt {
+  font-weight: 700;
+  margin-top: var(--spacing-sm);
+}
+
+.info-card dt:first-child {
+  margin-top: 0;
+}
+
+.info-card dd {
+  margin-left: 0;
+  color: var(--color-gray-700);
+}
+
+.tech-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.tech-list li {
+  padding: var(--spacing-xs) 0;
+  border-bottom: 1px solid var(--color-gray-300);
+}
+
+.tech-list li:last-child {
+  border-bottom: none;
+}
+
+/* CTA Section */
+.cta-section {
+  text-align: center;
+  padding: var(--spacing-2xl);
+  background-color: var(--color-gray-100);
+}
+
+.cta-section h2 {
+  margin-top: 0;
+  margin-bottom: var(--spacing-md);
+}
+
+.cta-section p {
+  margin-bottom: var(--spacing-lg);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Hero Tag */
+.hero-tag {
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: var(--spacing-sm);
+  opacity: 0.8;
+}
+
+/* Gallery Cards */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--spacing-xl);
+  margin-top: var(--spacing-xl);
+}
+
+.gallery-card {
+  background-color: var(--color-white);
+  border: 2px solid var(--color-black);
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.gallery-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 4px 4px 0 var(--color-black);
+}
+
+.gallery-card-image {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-bottom: 2px solid var(--color-black);
+}
+
+.gallery-card-content {
+  padding: var(--spacing-lg);
+}
+
+.gallery-card-tag {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-gray-700);
+  margin-bottom: var(--spacing-xs);
+}
+
+.gallery-card h3 {
+  margin: 0 0 var(--spacing-sm) 0;
+  font-size: 1.25rem;
+}
+
+.gallery-card p {
+  margin: 0;
+  color: var(--color-gray-700);
+  font-size: 0.875rem;
+}
+
+/* Back Link */
+.back-link {
+  display: inline-block;
+  color: var(--color-black);
+  text-decoration: none;
+  font-weight: 500;
+  transition: opacity var(--transition-base);
+}
+
+.back-link:hover {
+  opacity: 0.7;
 }

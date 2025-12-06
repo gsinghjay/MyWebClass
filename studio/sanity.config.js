@@ -1,14 +1,14 @@
 import {defineConfig} from 'sanity'
-import {deskTool} from 'sanity/desk'
+import {structureTool} from 'sanity/structure'
 import {visionTool} from '@sanity/vision'
 import {schemaTypes} from './schemas'
 
 export default defineConfig({
   name: 'default',
   title: 'MyWebClass',
-  projectId: process.env.SANITY_PROJECT_ID || 'your_project_id',
-  dataset: process.env.SANITY_DATASET || 'production',
-  plugins: [deskTool(), visionTool()],
+  projectId: 'gc7vlywa',
+  dataset: 'production',
+  plugins: [structureTool(), visionTool()],
   schema: {
     types: schemaTypes,
   },

@@ -1,0 +1,121 @@
+# generated: 2025-12-05
+# project: MyWebClass
+# project_key: mywebclass
+# tracking_system: file-system
+# story_location: docs/stories
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic exists in epic file but not contexted
+#   - contexted: Epic tech context created (required before drafting stories)
+#   - in-progress: At least one story being worked on
+#   - done: All stories completed
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - drafted: Story file created in stories folder by *create-story
+#   - ready-for-dev: Draft approved and story context created by *story-ready
+#   - in-progress: Developer actively working on implementation by *dev-story
+#   - review: Implementation complete, ready for review by *code-review
+#   - done: Story completed by *story-done
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - completed: Retrospective has been done by *retrospective
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epics should be 'contexted' before stories can be 'drafted'
+# - Stories can be worked in parallel if team capacity allows
+# - SM typically drafts next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', SM reviews, then Dev moves to 'done'
+
+generated: 2025-12-05
+project: MyWebClass
+project_key: mywebclass
+tracking_system: file-system
+story_location: docs/stories
+
+development_status:
+  # ============================================
+  # EPIC 1: Foundation & Core Infrastructure
+  # ============================================
+  epic-1: in-progress
+  1-1-project-initialization-dependencies: ready-for-dev
+  1-2-tailwind-css-v4-neo-swiss-configuration: backlog
+  1-3-sanity-cms-schema-deployment: backlog
+  1-4-shared-sanity-client-data-fetching: backlog
+  1-5-base-layout-neo-swiss-grid: backlog
+  1-6-navigation-component: backlog
+  1-7-footer-component: backlog
+  1-8-github-actions-ci-cd-pipeline: backlog
+  1-9-index-page-placeholder: backlog
+  epic-1-retrospective: optional
+
+  # ============================================
+  # EPIC 2: Design Gallery Experience
+  # ============================================
+  epic-2: backlog
+  2-1-gallery-listing-page: backlog
+  2-2-style-card-component: backlog
+  2-3-design-style-detail-page-template: backlog
+  2-4-historical-background-section: backlog
+  2-5-key-characteristics-design-principles: backlog
+  2-6-typography-color-guidance-display: backlog
+  2-7-homepage-featured-styles: backlog
+  2-8-view-demo-external-link: backlog
+  2-9-initial-design-style-content: backlog
+  epic-2-retrospective: optional
+
+  # ============================================
+  # EPIC 3: Student Submission Workflow
+  # ============================================
+  epic-3: backlog
+  3-1-submission-form-page: backlog
+  3-2-submission-form-fields: backlog
+  3-3-privacy-policy-consent: backlog
+  3-4-client-side-form-validation: backlog
+  3-5-sanity-mutation-integration: backlog
+  3-6-success-error-feedback: backlog
+  3-7-submission-flow-e2e-test: backlog
+  epic-3-retrospective: optional
+
+  # ============================================
+  # EPIC 4: Instructor Review & Content Management
+  # ============================================
+  epic-4: backlog
+  4-1-sanity-studio-submission-list-view: backlog
+  4-2-submission-detail-view: backlog
+  4-3-status-workflow-actions: backlog
+  4-4-approved-submissions-query: backlog
+  4-5-display-approved-submissions-gallery: backlog
+  4-6-submission-card-component: backlog
+  4-7-design-style-content-management: backlog
+  epic-4-retrospective: optional
+
+  # ============================================
+  # EPIC 5: Integrations & Analytics
+  # ============================================
+  epic-5: backlog
+  5-1-discord-webhook-new-submissions: backlog
+  5-2-crm-integration-zapier-make: backlog
+  5-3-google-analytics-4-setup: backlog
+  5-4-consent-gated-analytics-loading: backlog
+  5-5-event-tracking-implementation: backlog
+  epic-5-retrospective: optional
+
+  # ============================================
+  # EPIC 6: Compliance, SEO & Production Launch
+  # ============================================
+  epic-6: backlog
+  6-1-cookie-consent-banner: backlog
+  6-2-privacy-policy-page: backlog
+  6-3-cookie-policy-page: backlog
+  6-4-about-page: backlog
+  6-5-seo-meta-tags-open-graph: backlog
+  6-6-xml-sitemap-robots-txt: backlog
+  6-7-wcag-aa-accessibility-audit: backlog
+  6-8-lighthouse-ci-validation: backlog
+  6-9-production-launch-checklist: backlog
+  epic-6-retrospective: optional

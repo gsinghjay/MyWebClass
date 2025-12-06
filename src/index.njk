@@ -20,31 +20,28 @@ description: A digital museum of design styles - Explore authentic design style 
 <section class="container">
   <h2 class="text-center mb-xl">Featured Design Styles</h2>
 
-  {% if designStyles.length > 0 %}
-    <div class="grid grid-3">
+  {% if designStyles and designStyles.length > 0 %}
+    <div class="gallery-grid">
       {% for style in designStyles %}
         {% if style.featured or loop.index <= 3 %}
-          <a href="/gallery/{{ style.slug.current }}/" class="card">
+          <a href="/gallery/{{ style.slug.current }}/" class="gallery-card">
             {% if style.sampleImages and style.sampleImages.length > 0 %}
               <img
                 src="{{ style.sampleImages[0].asset._ref | replace('image-', 'https://cdn.sanity.io/images/' + site.sanityProjectId + '/' + site.sanityDataset + '/') | replace('-jpg', '.jpg') | replace('-png', '.png') }}"
                 alt="{{ style.sampleImages[0].alt or style.title }}"
-                class="card-image"
+                class="gallery-card-image"
                 loading="lazy"
               />
             {% else %}
-              <div class="card-image" style="background: linear-gradient(135deg, #000 0%, #666 100%);"></div>
+              <div class="gallery-card-image" style="background: linear-gradient(135deg, #000 0%, #333 100%); display: flex; align-items: center; justify-content: center;">
+                <span style="color: #fff; font-size: 1.5rem; font-weight: 700; letter-spacing: 0.1em;">{{ style.title | upper | truncate(10, true, '') }}</span>
+              </div>
             {% endif %}
 
-            <div class="card-content">
-              <h3 class="card-title">{{ style.title }}</h3>
-              <p class="card-description">{{ style.description }}</p>
-
-              {% if style.demoUrl %}
-                <div class="mt-md">
-                  <span class="button button-primary" style="display: inline-block;">View Demo</span>
-                </div>
-              {% endif %}
+            <div class="gallery-card-content">
+              <p class="gallery-card-tag">Design Style</p>
+              <h3>{{ style.title }}</h3>
+              <p>{{ style.description }}</p>
             </div>
           </a>
         {% endif %}

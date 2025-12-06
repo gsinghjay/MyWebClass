@@ -15,7 +15,7 @@ description: Submit your authentic design style demonstration to be featured in 
 
 <section class="container">
   <div style="max-width: 700px; margin: 0 auto;">
-    <form id="submission-form" class="submission-form">
+    <form id="submission-form" class="submission-form" novalidate>
       <div class="form-group">
         <label for="name" class="form-label">Your Name *</label>
         <input
@@ -110,7 +110,7 @@ description: Submit your authentic design style demonstration to be featured in 
       <div class="form-group">
         <label>
           <input type="checkbox" id="privacy-consent" required aria-required="true" />
-          I agree to the <a href="/privacy/">Privacy Policy</a> and understand my submission will be reviewed *
+          I understand my submission will be reviewed by instructors *
         </label>
         <div class="form-error" id="privacy-error" role="alert"></div>
       </div>
@@ -135,5 +135,5 @@ description: Submit your authentic design style demonstration to be featured in 
 </section>
 
 {% block scripts %}
-<script src="/js/submit-form.js" type="module"></script>
+<script src="/assets/js/submit-form.js"></script>
 {% endblock %}

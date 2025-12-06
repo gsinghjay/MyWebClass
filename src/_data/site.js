@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   name: "MyWebClass.org",
   description: "A digital museum of design styles",
   url: process.env.SITE_URL || "https://mywebclass.org",
@@ -7,8 +7,6 @@ module.exports = {
     name: "MyWebClass Team",
     email: "hello@mywebclass.org"
   },
-  supabase: {
-    url: process.env.VITE_SUPABASE_URL,
-    anonKey: process.env.VITE_SUPABASE_ANON_KEY
-  }
+  sanityProjectId: process.env.SANITY_PROJECT_ID || 'your_sanity_project_id',
+  sanityDataset: process.env.SANITY_DATASET || 'production'
 };

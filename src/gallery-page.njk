@@ -1,0 +1,54 @@
+---
+layout: layouts/base.njk
+title: Design Styles Gallery
+description: Browse our collection of authentic design style demonstrations
+permalink: /gallery/
+---
+
+<div class="hero">
+  <div class="container">
+    <h1>Design Styles Gallery</h1>
+    <p class="hero-description">
+      Explore our curated collection of design style demonstrations.
+    </p>
+  </div>
+</div>
+
+<section class="container">
+  {% if designStyles and designStyles.length > 0 %}
+    <h2>Featured Demos</h2>
+    <div class="gallery-grid">
+      {% for style in designStyles %}
+        <a href="/gallery/{{ style.slug.current }}/" class="gallery-card">
+          {% if style.sampleImages and style.sampleImages[0] %}
+            <img
+              src="{{ style.sampleImages[0].asset.url }}"
+              alt="{{ style.sampleImages[0].alt or style.title }}"
+              class="gallery-card-image"
+            />
+          {% else %}
+            <div class="gallery-card-image" style="background: linear-gradient(135deg, #000 0%, #333 100%); display: flex; align-items: center; justify-content: center;">
+              <span style="color: #fff; font-size: 1.5rem; font-weight: 700; letter-spacing: 0.1em;">{{ style.title | upper | truncate(10, true, '') }}</span>
+            </div>
+          {% endif %}
+          <div class="gallery-card-content">
+            <p class="gallery-card-tag">Design Style</p>
+            <h3>{{ style.title }}</h3>
+            <p>{{ style.description }}</p>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="text-center">
+      <p>No design styles available yet. Check back soon!</p>
+      <a href="/submit/" class="button button-primary mt-lg">Be the First to Submit</a>
+    </div>
+  {% endif %}
+
+  <div class="cta-section" style="margin-top: var(--spacing-3xl);">
+    <h2>Submit Your Design</h2>
+    <p>Created an authentic design style demonstration? Share it with our community and get featured in the gallery.</p>
+    <a href="/submit/" class="button button-primary">Submit Your Design</a>
+  </div>
+</section>

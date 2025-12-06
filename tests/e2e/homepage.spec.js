@@ -12,7 +12,7 @@ test.describe('Homepage', () => {
   test('should have navigation links', async ({ page }) => {
     await page.goto('/');
 
-    await expect(page.locator('nav a[href="/"]')).toBeVisible();
+    await expect(page.locator('nav a[href="/"]').first()).toBeVisible();
     await expect(page.locator('nav a[href="/gallery/"]')).toBeVisible();
     await expect(page.locator('nav a[href="/submit/"]')).toBeVisible();
     await expect(page.locator('nav a[href="/about/"]')).toBeVisible();

@@ -1,0 +1,17 @@
+{
+  "extends": "stylelint-config-standard",
+  "ignoreFiles": ["_site/**", "node_modules/**"],
+  "rules": {
+    "no-descending-specificity": null,
+    "selector-class-pattern": null,
+    "custom-property-pattern": null,
+    "custom-property-empty-line-before": null,
+    "color-hex-length": null,
+    "value-keyword-case": null,
+    "declaration-block-no-redundant-longhand-properties": null,
+    "color-function-notation": null,
+    "alpha-value-notation": null,
+    "media-feature-range-notation": null,
+    "import-notation": null
+  }
+}

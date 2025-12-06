@@ -8,25 +8,33 @@ test.describe('Cookie Consent', () => {
     });
   });
 
+  /**
+   * Helper to wait for consent banner to appear
+   * The banner shows after a 1s delay when no consent exists
+   */
+  async function waitForConsentBanner(page) {
+    const consentBanner = page.locator('#cookie-consent');
+    await expect(consentBanner).toHaveClass(/visible/, { timeout: 3000 });
+    return consentBanner;
+  }
+
   test('should display cookie consent banner', async ({ page }) => {
     await page.goto('/');
 
-    await page.waitForTimeout(1500);
-
-    const consentBanner = page.locator('#cookie-consent');
-    await expect(consentBanner).toBeVisible({ timeout: 3000 });
+    const consentBanner = await waitForConsentBanner(page);
+    await expect(consentBanner).toBeVisible();
   });
 
   test('should hide banner after accepting cookies', async ({ page }) => {
     await page.goto('/');
 
-    await page.waitForTimeout(1500);
+    await waitForConsentBanner(page);
 
     const acceptButton = page.locator('#accept-cookies');
     await acceptButton.click();
 
     const consentBanner = page.locator('#cookie-consent');
-    await expect(consentBanner).not.toBeVisible();
+    await expect(consentBanner).not.toHaveClass(/visible/);
 
     const consentValue = await page.evaluate(() => localStorage.getItem('cookie-consent'));
     expect(consentValue).toBe('accepted');
@@ -35,13 +43,13 @@ test.describe('Cookie Consent', () => {
   test('should hide banner after rejecting cookies', async ({ page }) => {
     await page.goto('/');
 
-    await page.waitForTimeout(1500);
+    await waitForConsentBanner(page);
 
     const rejectButton = page.locator('#reject-cookies');
     await rejectButton.click();
 
     const consentBanner = page.locator('#cookie-consent');
-    await expect(consentBanner).not.toBeVisible();
+    await expect(consentBanner).not.toHaveClass(/visible/);
 
     const consentValue = await page.evaluate(() => localStorage.getItem('cookie-consent'));
     expect(consentValue).toBe('rejected');
@@ -50,7 +58,7 @@ test.describe('Cookie Consent', () => {
   test('should open preferences modal', async ({ page }) => {
     await page.goto('/');
 
-    await page.waitForTimeout(1500);
+    await waitForConsentBanner(page);
 
     const preferencesButton = page.locator('#cookie-preferences');
     await preferencesButton.click();
