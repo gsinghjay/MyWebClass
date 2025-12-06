@@ -5,20 +5,20 @@ description: A digital museum of design styles - Explore authentic design style 
 ---
 
 <section class="hero">
-  <div class="container">
-    <h1 class="hero-title">A digital museum of design styles</h1>
+  <div class="wrapper">
+    <h1 class="hero-title">A <span class="highlight-brutal">digital museum</span> of design styles</h1>
     <p class="hero-description">
       Explore authentic design style demonstrations and learn the history, principles, and techniques behind iconic visual movements.
     </p>
     <div class="flex gap-md justify-center mt-xl">
-      <a href="/gallery/" class="button button-primary">Explore Gallery</a>
+      <a href="/gallery/" class="button button-brutal">Explore Gallery</a>
       <a href="/submit/" class="button button-secondary">Submit Your Design</a>
     </div>
   </div>
 </section>
 
-<section class="container">
-  <h2 class="text-center mb-xl">Featured Design Styles</h2>
+<section class="wrapper">
+  <h2 class="text-center mb-xl text-brutal">Featured Design Styles</h2>
 
   {% if designStyles and designStyles.length > 0 %}
     <div class="gallery-grid">
@@ -54,10 +54,10 @@ description: A digital museum of design styles - Explore authentic design style 
   {% endif %}
 </section>
 
-<section class="container mt-3xl">
+<section class="wrapper mt-3xl">
   <div class="grid grid-2">
-    <div>
-      <h2>Learn Through Authentic Examples</h2>
+    <div class="shadow-brutal" style="padding: var(--spacing-lg); border: var(--border-brutal) solid var(--color-primary);">
+      <h2 class="text-brutal">Learn Through Authentic Examples</h2>
       <p>
         MyWebClass.org is an educational platform that teaches design history through fully-implemented website demonstrations. Each style in our gallery represents careful research and authentic recreation of historical design movements.
       </p>
@@ -67,15 +67,15 @@ description: A digital museum of design styles - Explore authentic design style 
       <a href="/about/" class="button button-secondary mt-md">Learn More</a>
     </div>
 
-    <div>
-      <h2>Contribute Your Work</h2>
+    <div class="shadow-brutal" style="padding: var(--spacing-lg); border: var(--border-brutal) solid var(--color-primary);">
+      <h2 class="text-brutal">Contribute Your Work</h2>
       <p>
         Are you a student or designer passionate about design history? Submit your own style-accurate demos to our gallery. Share your interpretation of classic design movements and help build this educational resource.
       </p>
       <p>
         All submissions are reviewed by instructors for historical accuracy and authenticity before being added to the public gallery.
       </p>
-      <a href="/submit/" class="button button-primary mt-md">Submit Design</a>
+      <a href="/submit/" class="button button-brutal mt-md">Submit Design</a>
     </div>
   </div>
 </section>

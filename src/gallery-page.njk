@@ -6,17 +6,17 @@ permalink: /gallery/
 ---
 
 <div class="hero">
-  <div class="container">
-    <h1>Design Styles Gallery</h1>
+  <div class="wrapper">
+    <h1>Design Styles <span class="highlight-brutal">Gallery</span></h1>
     <p class="hero-description">
       Explore our curated collection of design style demonstrations.
     </p>
   </div>
 </div>
 
-<section class="container">
+<section class="wrapper">
   {% if designStyles and designStyles.length > 0 %}
-    <h2>Featured Demos</h2>
+    <h2 class="text-brutal">Featured Demos</h2>
     <div class="gallery-grid">
       {% for style in designStyles %}
         <a href="/gallery/{{ style.slug.current }}/" class="gallery-card">
@@ -42,13 +42,13 @@ permalink: /gallery/
   {% else %}
     <div class="text-center">
       <p>No design styles available yet. Check back soon!</p>
-      <a href="/submit/" class="button button-primary mt-lg">Be the First to Submit</a>
+      <a href="/submit/" class="button button-brutal mt-lg">Be the First to Submit</a>
     </div>
   {% endif %}
 
-  <div class="cta-section" style="margin-top: var(--spacing-3xl);">
-    <h2>Submit Your Design</h2>
+  <div class="cta-section shadow-brutal-lg" style="margin-top: var(--spacing-3xl); border: var(--border-brutal) solid var(--color-primary);">
+    <h2 class="text-brutal">Submit Your Design</h2>
     <p>Created an authentic design style demonstration? Share it with our community and get featured in the gallery.</p>
-    <a href="/submit/" class="button button-primary">Submit Your Design</a>
+    <a href="/submit/" class="button button-brutal">Submit Your Design</a>
   </div>
 </section>
