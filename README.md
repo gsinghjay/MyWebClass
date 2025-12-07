@@ -1,5 +1,8 @@
 # MyWebClass.org
 
+[![CI/CD Pipeline](https://github.com/gsinghjay/MyWebClass/actions/workflows/ci.yml/badge.svg)](https://github.com/gsinghjay/MyWebClass/actions/workflows/ci.yml)
+[![Sanity Content Rebuild](https://github.com/gsinghjay/MyWebClass/actions/workflows/sanity-rebuild.yml/badge.svg)](https://github.com/gsinghjay/MyWebClass/actions/workflows/sanity-rebuild.yml)
+
 A design education platform built with Eleventy, Nunjucks, Tailwind CSS, and Sanity CMS. Teaches design history through authentic, fully-implemented website demos.
 
 ## Project Overview
