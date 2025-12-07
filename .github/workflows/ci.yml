@@ -57,12 +57,13 @@ jobs:
           SANITY_DATASET: ${{ secrets.SANITY_DATASET }}
           SANITY_API_VERSION: ${{ secrets.SANITY_API_VERSION }}
           SANITY_TOKEN: ${{ secrets.SANITY_TOKEN }}
+          GITHUB_ACTIONS: true
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: site-build
-          path: _site/
+          path: public/
           retention-days: 7
 
   test:
@@ -88,7 +89,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: site-build
-          path: _site/
+          path: public/
 
       - name: Run Playwright tests
         run: npm run test
@@ -123,7 +124,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: site-build
-          path: _site/
+          path: public/
 
       - name: Run Lighthouse CI
         run: |
@@ -168,6 +169,7 @@ jobs:
           SANITY_DATASET: ${{ secrets.SANITY_DATASET }}
           SANITY_API_VERSION: ${{ secrets.SANITY_API_VERSION }}
           SANITY_TOKEN: ${{ secrets.SANITY_TOKEN }}
+          GITHUB_ACTIONS: true
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -175,7 +177,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '_site'
+          path: 'public'
 
       - name: Deploy to GitHub Pages
         id: deployment

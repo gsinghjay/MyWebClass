@@ -43,7 +43,7 @@ development_status:
   1-1-initialize-sanity-studio-project: done
   1-2-create-sanity-content-schemas: done
   1-3-set-up-eleventy-data-fetching-layer: done
-  1-4-configure-github-actions-sanity-webhook-rebuild: in-progress
+  1-4-configure-github-actions-sanity-webhook-rebuild: review
   1-5-migrate-existing-content-to-sanity: backlog
   epic-1-retrospective: optional
 
