@@ -24,6 +24,7 @@ module.exports = function(eleventyConfig) {
       includes: "_includes",
       data: "_data"
     },
+    pathPrefix: process.env.GITHUB_ACTIONS ? "/MyWebClass/" : "/",
     templateFormats: ["njk", "md", "html"],
     htmlTemplateEngine: "njk",
     markdownTemplateEngine: "njk"
