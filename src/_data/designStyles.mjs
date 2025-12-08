@@ -4,7 +4,7 @@ import { buildQueryUrl } from "./sanity.mjs";
 const isDev = process.env.NODE_ENV !== 'production';
 
 export default async function() {
-  const query = '*[_type == "designStyle"]';
+  const query = '*[_type == "designStyle"] | order(title asc)';
   const url = buildQueryUrl(query);
 
   try {

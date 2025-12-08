@@ -5,7 +5,7 @@ module.exports = {
   author: 'NJIT S373 Project Team',
   year: new Date().getFullYear(),
   stats: {
-    designStyles: '12+',
+    designStyles: '34+',
     studentDemos: '50+',
     authentic: '100%',
     cost: 'Free'
