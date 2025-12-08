@@ -6,10 +6,15 @@ on:
   pull_request:
     branches: [main]
 
+# Skip CI for release commits (handled by release workflow)
+env:
+  SKIP_CI: ${{ contains(github.event.head_commit.message, 'chore(release):') }}
+
 jobs:
   lint:
     name: Lint Code
     runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'chore(release):')"
     steps:
       - uses: actions/checkout@v4
 

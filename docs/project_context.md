@@ -13,6 +13,7 @@
 
 ### DO
 
+- Use Angular/Conventional Commits format: `feat:`, `fix:`, `docs:`, `chore:` (triggers semantic versioning)
 - Use `@11ty/eleventy-fetch` for all Sanity data fetching with 1-hour cache
 - Wrap all Sanity fetches in try/catch, return empty array on failure
 - Use camelCase for Sanity schema fields (`submitterName`, `isFeatured`)

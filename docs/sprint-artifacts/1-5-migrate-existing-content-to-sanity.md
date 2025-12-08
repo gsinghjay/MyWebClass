@@ -1,6 +1,6 @@
 # Story 1.5: Migrate Existing Content to Sanity
 
-Status: Ready for Review
+Status: Done
 
 ---
 
@@ -477,8 +477,12 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 
 **Modified:**
 - studio/schemas/designStyle.js - Added 5 new schema fields
-- docs/sprint-artifacts/sprint-status.yaml - Status: ready-for-dev → review
+- docs/sprint-artifacts/sprint-status.yaml - Status: ready-for-dev → review → done
 - .gitignore - Added studio/schema.json
+- src/_data/site.js - Updated designStyles stat from '12+' to '34+' (code review fix)
+- src/_data/designStyles.mjs - Added alphabetical ordering to query (code review fix)
+- src/pages/styles/style-detail.njk - Removed dead Download link, added secondary font display (code review fix)
+- src/pages/index.njk - Removed non-functional filter buttons (code review fix)
 
 **Created:**
 - studio/design-styles-import.ndjson - Initial 5 design styles content
@@ -496,6 +500,20 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 **Story Context Engine Analysis:** COMPLETED
 **Validation Status:** PASSED (improvements applied 2025-12-06)
 **Status:** Ready for Review
+
+### Code Review Fixes Applied (2025-12-08)
+
+**Reviewer:** Claude Opus 4.5 (Dev Agent - Amelia)
+
+**Issues Fixed:**
+- **H1 (HIGH):** site.js stats showed "12+" but 34 styles exist → Updated to "34+"
+- **H2 (HIGH):** "Download Style Guide" button was dead link → Removed, added TODO for future story
+- **M1 (MEDIUM):** Filter buttons in gallery non-functional → Removed, added TODO referencing Story 2.3
+- **M3 (MEDIUM):** Design styles in unpredictable order → Added `| order(title asc)` to GROQ query
+- **L1 (LOW):** Secondary font not displayed → Added secondaryFont and typography notes to sidebar
+
+**Not Fixed (Deferred):**
+- **M2:** No tests for designStyles.mjs data layer → Deferred to future test coverage story
 
 ### Validation Improvements Applied
 

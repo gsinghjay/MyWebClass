@@ -122,7 +122,12 @@ layout: layouts/base.njk
           <div class="mb-6">
             <span class="text-caption text-neutral-400 uppercase tracking-wider">Typography</span>
             <p class="mt-2 font-bold">{{ style.typography.primaryFont or style.typography or 'Sans-serif' }}</p>
-            <p class="text-sm text-neutral-500">Sans-serif, clean</p>
+            {% if style.typography.secondaryFont %}
+            <p class="text-sm text-neutral-600">Secondary: {{ style.typography.secondaryFont }}</p>
+            {% endif %}
+            {% if style.typography.notes %}
+            <p class="text-sm text-neutral-500 mt-1">{{ style.typography.notes | truncate(100) }}</p>
+            {% endif %}
           </div>
 
           {% if style.gridSystem %}
@@ -132,9 +137,7 @@ layout: layouts/base.njk
           </div>
           {% endif %}
 
-          <a href="#" class="btn btn-primary w-full text-sm text-center block">
-            Download Style Guide
-          </a>
+{# TODO: Implement style guide PDF generation in future story #}
         </div>
       </div>
     </div>
