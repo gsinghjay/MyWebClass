@@ -10,12 +10,43 @@ layout: layouts/base.njk
 {% set title = style.title %}
 {% set description = style.description %}
 
+{# Back Navigation #}
+<div class="container-custom py-4">
+  <a href="{{ '/' | url }}" class="text-sm text-neutral-500 hover:text-black inline-flex items-center gap-2">
+    ← Back to Gallery
+  </a>
+</div>
+
+{# Hero Image #}
+{% if style.heroImage and style.heroImage.asset and style.heroImage.asset._ref %}
+  {% set imgRef = style.heroImage.asset._ref | replace('image-', '') | replace('-jpg', '.jpg') | replace('-jpeg', '.jpeg') | replace('-png', '.png') | replace('-webp', '.webp') | replace('-gif', '.gif') %}
+  <section class="relative w-full h-64 md:h-80 lg:h-96 overflow-hidden">
+    <img
+      src="https://cdn.sanity.io/images/{{ sanityConfig.projectId }}/{{ sanityConfig.dataset }}/{{ imgRef }}?w=1200&fit=crop&auto=format"
+      srcset="https://cdn.sanity.io/images/{{ sanityConfig.projectId }}/{{ sanityConfig.dataset }}/{{ imgRef }}?w=640&fit=crop&auto=format 640w,
+              https://cdn.sanity.io/images/{{ sanityConfig.projectId }}/{{ sanityConfig.dataset }}/{{ imgRef }}?w=1024&fit=crop&auto=format 1024w,
+              https://cdn.sanity.io/images/{{ sanityConfig.projectId }}/{{ sanityConfig.dataset }}/{{ imgRef }}?w=1200&fit=crop&auto=format 1200w"
+      sizes="100vw"
+      alt="{{ style.heroImage.alt or style.title }}"
+      class="w-full h-full object-cover"
+      loading="eager"
+    />
+  </section>
+{% else %}
+  {# Fallback: Accessible colored banner with emoji #}
+  <section
+    class="relative w-full h-48 md:h-64 flex items-center justify-center"
+    style="background-color: {{ style.accentColor or '#E53935' }}20;"
+    role="img"
+    aria-label="{{ style.title }} decorative banner"
+  >
+    <span class="text-8xl" aria-hidden="true">{{ style.thumbnail or '🎨' }}</span>
+  </section>
+{% endif %}
+
 {# Header #}
 <section class="border-b-2 border-black">
   <div class="container-custom py-8">
-    <a href="{{ '/' | url }}" class="text-sm text-neutral-500 hover:text-black mb-4 block inline-flex items-center gap-2">
-      ← Back to Gallery
-    </a>
     <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
       <div>
         <span class="text-overline text-neutral-400">{{ style.era or 'Design Movement' }}</span>
@@ -26,6 +57,9 @@ layout: layouts/base.njk
         style="background-color: {{ style.accentColor or '#E53935' }};"
       ></div>
     </div>
+    {% if style.description %}
+    <p class="text-lg text-neutral-600 mt-6 max-w-2xl">{{ style.description }}</p>
+    {% endif %}
   </div>
 </section>
 
@@ -41,7 +75,7 @@ layout: layouts/base.njk
         <span class="text-8xl block mb-4">{{ style.thumbnail or '🎨' }}</span>
         <p class="text-neutral-500 mb-4">Interactive {{ style.title }} Demo</p>
         {% if style.demoUrl %}
-        <a href="{{ style.demoUrl }}" target="_blank" rel="noopener" class="btn btn-primary text-sm">
+        <a href="{{ style.demoUrl }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary text-sm">
           Open Full Demo ↗
         </a>
         {% endif %}
@@ -98,6 +132,26 @@ layout: layouts/base.njk
           principles documented in the original movement. Every design decision
           is grounded in historical research.
         </p>
+
+        {# Gallery Images #}
+        {% if style.galleryImages and style.galleryImages.length %}
+        <h2 class="text-h2 mb-6 mt-12">Example Gallery</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {% for image in style.galleryImages %}
+            {% if image.asset and image.asset._ref %}
+              {% set galleryImgRef = image.asset._ref | replace('image-', '') | replace('-jpg', '.jpg') | replace('-jpeg', '.jpeg') | replace('-png', '.png') | replace('-webp', '.webp') | replace('-gif', '.gif') %}
+              <figure class="overflow-hidden border-2 border-black">
+                <img
+                  src="https://cdn.sanity.io/images/{{ sanityConfig.projectId }}/{{ sanityConfig.dataset }}/{{ galleryImgRef }}?w=600&fit=crop&auto=format"
+                  alt="{{ image.alt or style.title ~ ' example' }}"
+                  class="w-full h-48 object-cover"
+                  loading="lazy"
+                />
+              </figure>
+            {% endif %}
+          {% endfor %}
+        </div>
+        {% endif %}
       </div>
 
       {# Sidebar #}

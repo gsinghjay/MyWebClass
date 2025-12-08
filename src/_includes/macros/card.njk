@@ -4,7 +4,7 @@
     {# Render Sanity CDN image with optimization #}
     <div class="h-48 overflow-hidden">
       <img
-        src="https://cdn.sanity.io/images/{{ sanityConfig.projectId }}/{{ sanityConfig.dataset }}/{{ style.heroImage.asset._ref | replace('image-', '') | replace('-jpg', '.jpg') | replace('-png', '.png') | replace('-webp', '.webp') | replace('-gif', '.gif') }}?w=400&fit=crop&auto=format"
+        src="https://cdn.sanity.io/images/{{ sanityConfig.projectId }}/{{ sanityConfig.dataset }}/{{ style.heroImage.asset._ref | replace('image-', '') | replace('-jpg', '.jpg') | replace('-jpeg', '.jpeg') | replace('-png', '.png') | replace('-webp', '.webp') | replace('-gif', '.gif') }}?w=400&fit=crop&auto=format"
         alt="{{ style.heroImage.alt or style.title }}"
         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         loading="lazy"
