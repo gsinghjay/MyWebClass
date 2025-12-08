@@ -62,6 +62,29 @@ permalink: /
   </div>
 </section>
 
+{# Featured Themes Section - Only render if featured submissions exist #}
+{% if featuredSubmissions.length %}
+<section id="featured" class="section-padding border-b-2 border-black">
+  <div class="container-custom">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6">
+      <div>
+        <span class="text-overline text-neutral-400">Curated</span>
+        <h2 class="text-h2 mt-2">Featured Themes</h2>
+      </div>
+      <p class="text-neutral-500 max-w-md text-right">
+        Exceptional implementations selected by our curators
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for submission in featuredSubmissions %}
+        {{ cards.featuredCard(submission) }}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
 {# Gallery Section #}
 <section id="gallery" class="section-padding">
   <div class="container-custom">
