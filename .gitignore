@@ -34,3 +34,9 @@ studio/.sanity/
 *.log
 npm-debug.log*
 studio/schema.json
+
+# Playwright
+playwright-report/
+test-results/
+blob-report/
+playwright/.cache/

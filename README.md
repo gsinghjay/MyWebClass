@@ -2,6 +2,7 @@
 
 [![CI/CD Pipeline](https://github.com/gsinghjay/MyWebClass/actions/workflows/ci.yml/badge.svg)](https://github.com/gsinghjay/MyWebClass/actions/workflows/ci.yml)
 [![Sanity Content Rebuild](https://github.com/gsinghjay/MyWebClass/actions/workflows/sanity-rebuild.yml/badge.svg)](https://github.com/gsinghjay/MyWebClass/actions/workflows/sanity-rebuild.yml)
+[![Playwright E2E](https://img.shields.io/badge/E2E-Playwright-45ba4b?logo=playwright&logoColor=white)](https://github.com/gsinghjay/MyWebClass/actions/workflows/ci.yml)
 
 A design education platform built with Eleventy, Nunjucks, Tailwind CSS, and Sanity CMS. Teaches design history through authentic, fully-implemented website demos.
 
@@ -59,9 +60,49 @@ npm run build
 
 ### Available Scripts
 
-- `npm run dev` - Start development server with hot reload
-- `npm run build` - Build for production
-- `npm start` - Start Eleventy server
+| Script | Description |
+|--------|-------------|
+| `npm run dev` | Start development server with hot reload |
+| `npm run build` | Build for production |
+| `npm start` | Start Eleventy server |
+| `npm test` | Run unit tests |
+| `npm run test:e2e` | Run Playwright E2E tests |
+| `npm run test:e2e:ui` | Run Playwright with interactive UI |
+| `npm run test:e2e:headed` | Run Playwright in headed mode |
+
+## Testing
+
+### Unit Tests
+
+```bash
+npm test
+```
+
+Runs Sanity configuration tests using Node.js native test runner.
+
+### E2E Tests (Playwright)
+
+```bash
+# Run all E2E tests
+npm run test:e2e
+
+# Run with interactive UI
+npm run test:e2e:ui
+
+# Run in headed mode (see browser)
+npm run test:e2e:headed
+```
+
+**Test Coverage:**
+- Gallery filter functionality (21 tests)
+  - Filter buttons display and labels
+  - Filter application and URL sync
+  - Clear filter functionality
+  - URL-based state persistence
+  - Browser back/forward navigation
+  - Responsive layout behavior
+  - Keyboard accessibility
+  - Category count validation
 
 ## Design System
 

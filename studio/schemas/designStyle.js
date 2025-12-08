@@ -22,6 +22,23 @@ export default defineType({
       validation: Rule => Rule.required()
     }),
     defineField({
+      name: 'category',
+      title: 'Category',
+      type: 'string',
+      description: 'Design style category for filtering',
+      options: {
+        list: [
+          {title: 'Modernism', value: 'modernism'},
+          {title: 'Art Movements', value: 'art-movements'},
+          {title: 'Postmodern', value: 'postmodern'},
+          {title: 'Digital', value: 'digital'},
+          {title: 'Retro', value: 'retro'},
+          {title: 'Minimalist', value: 'minimalist'},
+          {title: 'Expressive', value: 'expressive'}
+        ]
+      }
+    }),
+    defineField({
       name: 'description',
       title: 'Description',
       type: 'text',

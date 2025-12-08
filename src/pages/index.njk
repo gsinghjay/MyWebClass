@@ -70,13 +70,39 @@ permalink: /
         <span class="text-overline text-neutral-400">Browse</span>
         <h2 class="text-h2 mt-2">Design Style Gallery</h2>
       </div>
-{# TODO: Implement filtering in Story 2.3 (Gallery Filtering by Design Style Category) #}
     </div>
 
-    {% if designStyles.length %}
+    {# Filter buttons - mobile scrollable, desktop wrapped #}
+    <nav
+      id="filter-buttons"
+      class="flex gap-2 overflow-x-auto pb-4 mb-8 -mx-4 px-4 md:mx-0 md:px-0 md:flex-wrap md:overflow-visible"
+      role="group"
+      aria-label="Filter gallery by design style category"
+    >
+      <button
+        type="button"
+        class="filter-btn px-4 py-2 border-2 border-black text-sm font-medium transition-colors bg-black text-white whitespace-nowrap"
+        data-filter="all"
+        aria-pressed="true"
+      >All Styles</button>
+      {% for category in designStyles.categories %}
+      <button
+        type="button"
+        class="filter-btn px-4 py-2 border-2 border-black text-sm font-medium transition-colors bg-white text-black hover:bg-neutral-100 whitespace-nowrap"
+        data-filter="{{ category }}"
+        aria-pressed="false"
+      >{{ category | replace('-', ' ') | title }}</button>
+      {% endfor %}
+    </nav>
+
+    {% if designStyles.styles.length %}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {% for style in designStyles %}
-        <a href="{{ '/styles/' | url }}{{ style.slug.current or style.slug }}/" class="block">
+      {% for style in designStyles.styles %}
+        <a
+          href="{{ '/styles/' | url }}{{ style.slug.current or style.slug }}/"
+          class="block gallery-card"
+          data-category="{{ style.category or 'uncategorized' }}"
+        >
           {{ cards.galleryCard(style) }}
         </a>
       {% endfor %}
@@ -124,3 +150,7 @@ permalink: /
     </a>
   </div>
 </section>
+
+{% block scripts %}
+<script src="{{ '/scripts/gallery-filter.js' | url }}" defer></script>
+{% endblock %}

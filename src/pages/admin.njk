@@ -105,7 +105,7 @@ permalink: /admin/
     {% set stats = [
       { label: 'Total Submissions', value: submissions | length },
       { label: 'Pending Review', value: submissions | filterByStatus('pending') | length },
-      { label: 'Published', value: designStyles | filterByStatus('approved') | length },
+      { label: 'Published', value: designStyles.styles | length },
       { label: 'This Week', value: '2' }
     ] %}
     {% for stat in stats %}

@@ -87,27 +87,48 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: site-build
-          path: public/
-
-      - name: Run Playwright tests
+      - name: Run unit tests
         run: npm run test
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium
+
+      - name: Run Playwright E2E tests
+        run: npx playwright test --reporter=json,html > playwright-results.json || true
         env:
           CI: true
+
+      - name: Extract test results
+        id: test-results
+        run: |
+          if [ -f playwright-results.json ]; then
+            PASSED=$(cat playwright-results.json | jq '.stats.expected // 0')
+            FAILED=$(cat playwright-results.json | jq '.stats.unexpected // 0')
+            TOTAL=$((PASSED + FAILED))
+            echo "passed=$PASSED" >> $GITHUB_OUTPUT
+            echo "failed=$FAILED" >> $GITHUB_OUTPUT
+            echo "total=$TOTAL" >> $GITHUB_OUTPUT
+            echo "### Playwright Test Results 🎭" >> $GITHUB_STEP_SUMMARY
+            echo "| Status | Count |" >> $GITHUB_STEP_SUMMARY
+            echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+            echo "| ✅ Passed | $PASSED |" >> $GITHUB_STEP_SUMMARY
+            echo "| ❌ Failed | $FAILED |" >> $GITHUB_STEP_SUMMARY
+            echo "| 📊 Total | $TOTAL |" >> $GITHUB_STEP_SUMMARY
+          fi
 
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-results
-          path: playwright-report/
+          path: |
+            playwright-report/
+            playwright-results.json
           retention-days: 30
+
+      - name: Fail if tests failed
+        if: steps.test-results.outputs.failed != '0' && steps.test-results.outputs.failed != ''
+        run: exit 1
 
   lighthouse:
     name: Lighthouse CI

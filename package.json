@@ -12,6 +12,9 @@
     "build:eleventy": "eleventy",
     "start": "eleventy --serve",
     "test": "node --test tests/sanity.test.mjs",
+    "test:e2e": "npx playwright test",
+    "test:e2e:ui": "npx playwright test --ui",
+    "test:e2e:headed": "npx playwright test --headed",
     "studio:dev": "cd studio && npm run dev",
     "studio:build": "cd studio && npm run build",
     "studio:deploy": "cd studio && npm run deploy"
@@ -28,6 +31,7 @@
     "@11ty/eleventy": "^3.1.2",
     "@11ty/eleventy-fetch": "^5.1.1",
     "@11ty/eleventy-img": "^6.0.4",
+    "@playwright/test": "^1.57.0",
     "@types/node": "^24.10.1",
     "autoprefixer": "^10.4.22",
     "cssnano": "^7.1.2",

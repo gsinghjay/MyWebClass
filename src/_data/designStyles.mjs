@@ -16,21 +16,30 @@ export default async function() {
     // Validate response structure
     if (!data || typeof data !== 'object') {
       console.error("[Sanity] Invalid response structure - expected object");
-      return [];
+      return { styles: [], categories: [] };
     }
 
     const result = data.result;
     if (!Array.isArray(result)) {
       console.error("[Sanity] Invalid response - 'result' is not an array");
-      return [];
+      return { styles: [], categories: [] };
     }
 
+    // Extract unique categories from styles
+    const categories = [...new Set(
+      result.map(s => s.category).filter(Boolean)
+    )].sort();
+
     if (isDev) {
-      console.log(`[Sanity] Fetched ${result.length} design styles`);
+      console.log(`[Sanity] Fetched ${result.length} design styles, ${categories.length} categories`);
     }
-    return result;
+
+    return {
+      styles: result,
+      categories: categories
+    };
   } catch (error) {
     console.error("[Sanity] Failed to fetch design styles:", error.message);
-    return [];
+    return { styles: [], categories: [] };
   }
 }
