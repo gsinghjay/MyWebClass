@@ -1,6 +1,19 @@
 # CHANGELOG
 
 
+## v1.5.0 (2025-12-08)
+
+### Bug Fixes
+
+- **images**: Resolve Sanity CDN URLs not rendering in Nunjucks macros
+  ([`84d3543`](https://github.com/gsinghjay/MyWebClass/commit/84d35439a1f604e45c4affda9d1af5726d4ad482))
+
+### Features
+
+- **gallery**: Add Community Gallery section for approved submissions
+  ([`792e405`](https://github.com/gsinghjay/MyWebClass/commit/792e40559aef318f029190601ad5c155afdfb0b8))
+
+
 ## v1.4.0 (2025-12-08)
 
 ### Features
