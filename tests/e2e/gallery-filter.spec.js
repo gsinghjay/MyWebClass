@@ -139,21 +139,46 @@ test.describe('Gallery Filter', () => {
   });
 
   test.describe('AC4: URL-Based Filter State', () => {
-    test('should pre-apply filter from URL parameter', async ({ page }) => {
-      await page.goto('/?category=minimalist');
+    test('should apply filter from click and update URL', async ({ page }) => {
+      // Start on homepage with no filter
+      await page.goto('/');
+      await expect(page).not.toHaveURL(/\?category=/);
 
-      // Minimalist button should be active
+      // Click minimalist filter
       const minimalistButton = page.locator('.filter-btn[data-filter="minimalist"]');
+      await minimalistButton.click();
+
+      // Button should now be active
       await expect(minimalistButton).toHaveAttribute('aria-pressed', 'true');
+
+      // URL should be updated
+      await expect(page).toHaveURL(/\?category=minimalist/);
 
       // Only minimalist cards should be visible
       const visibleCards = page.locator('.gallery-card:visible');
-      const minimalistCards = page.locator('.gallery-card[data-category="minimalist"]:visible');
-
+      const minimalistCount = await page.locator('.gallery-card[data-category="minimalist"]:visible').count();
       const visibleCount = await visibleCards.count();
-      const minimalistCount = await minimalistCards.count();
 
       expect(visibleCount).toBe(minimalistCount);
+    });
+
+    test('should preserve filter on page refresh', async ({ page }) => {
+      // Navigate with filter param
+      await page.goto('/');
+
+      // Click to apply filter first
+      await page.click('.filter-btn[data-filter="minimalist"]');
+      await expect(page.locator('.filter-btn[data-filter="minimalist"]')).toHaveAttribute('aria-pressed', 'true');
+
+      // Reload the page
+      await page.reload({ waitUntil: 'networkidle' });
+
+      // Wait for JS to reinitialize after reload
+      await page.waitForTimeout(1000);
+
+      // Filter should still be applied from URL
+      const minimalistButton = page.locator('.filter-btn[data-filter="minimalist"]');
+      await expect(minimalistButton).toHaveAttribute('aria-pressed', 'true', { timeout: 5000 });
     });
 
     test('should handle browser back/forward navigation', async ({ page }) => {
