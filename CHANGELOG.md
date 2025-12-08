@@ -1,6 +1,32 @@
 # CHANGELOG
 
 
+## v1.3.0 (2025-12-08)
+
+### Bug Fixes
+
+- **test**: Use chromium only for Playwright tests
+  ([`476251c`](https://github.com/gsinghjay/MyWebClass/commit/476251c939f27ed155a7d876bb1524a1546f9119))
+
+### Documentation
+
+- Mark story 2-2 as done
+  ([`5a41c70`](https://github.com/gsinghjay/MyWebClass/commit/5a41c70ca5aa734ebe53d2ba392924b89dd27f0d))
+
+- Update README with testing info and add Playwright to gitignore
+  ([`8533a51`](https://github.com/gsinghjay/MyWebClass/commit/8533a516e184dbd5dd461a0454a22deb08ab866a))
+
+### Features
+
+- **gallery**: Implement category filtering with 7 design categories
+  ([`abf5169`](https://github.com/gsinghjay/MyWebClass/commit/abf5169f1f0349a8ea7681eab87c26a88a36812d))
+
+### Testing
+
+- **e2e**: Add Playwright tests for gallery filtering
+  ([`8beb5f3`](https://github.com/gsinghjay/MyWebClass/commit/8beb5f3db1d2c95389c29d226306e8372b0d0320))
+
+
 ## v1.2.0 (2025-12-08)
 
 ### Features
