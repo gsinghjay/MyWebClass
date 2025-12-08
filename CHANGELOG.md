@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v1.1.0 (2025-12-08)
+
+### Features
+
+- **gallery**: Implement design style cards with Sanity CDN images
+  ([`3e4fae2`](https://github.com/gsinghjay/MyWebClass/commit/3e4fae20cccc7e4f36d4e14992216559b59737a5))
+
+
 ## v1.0.2 (2025-12-08)
 
 ### Bug Fixes
