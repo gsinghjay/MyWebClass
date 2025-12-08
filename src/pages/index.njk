@@ -73,13 +73,20 @@ permalink: /
 {# TODO: Implement filtering in Story 2.3 (Gallery Filtering by Design Style Category) #}
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% if designStyles.length %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {% for style in designStyles %}
         <a href="{{ '/styles/' | url }}{{ style.slug.current or style.slug }}/" class="block">
           {{ cards.galleryCard(style) }}
         </a>
       {% endfor %}
     </div>
+    {% else %}
+    <div class="text-center py-16 border-2 border-dashed border-neutral-300">
+      <p class="text-xl text-neutral-500 mb-4">No design styles available yet.</p>
+      <p class="text-neutral-400">Check back soon for our curated collection.</p>
+    </div>
+    {% endif %}
   </div>
 </section>
 

@@ -50,8 +50,8 @@ development_status:
   # ============================================
   # Epic 2: Public Design Gallery Experience
   # ============================================
-  epic-2: backlog
-  2-1-gallery-listing-page-with-design-style-cards: backlog
+  epic-2: in-progress
+  2-1-gallery-listing-page-with-design-style-cards: done
   2-2-design-style-detail-pages-with-educational-content: backlog
   2-3-gallery-filtering-by-design-style-category: backlog
   2-4-featured-themes-section: backlog
