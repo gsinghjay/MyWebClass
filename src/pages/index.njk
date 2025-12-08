@@ -139,6 +139,29 @@ permalink: /
   </div>
 </section>
 
+{# Community Gallery Section - Only render if non-featured approved submissions exist #}
+{% if communitySubmissions.length %}
+<section id="community" class="section-padding border-t-2 border-black">
+  <div class="container-custom">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6">
+      <div>
+        <span class="text-overline text-neutral-400">Student Work</span>
+        <h2 class="text-h2 mt-2">Community Gallery</h2>
+      </div>
+      <p class="text-neutral-500 max-w-md text-right">
+        Explore real implementations from design students
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for submission in communitySubmissions %}
+        {{ cards.submissionCard(submission) }}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
 {# How It Works Section #}
 <section id="how-it-works" class="bg-neutral-100 section-padding border-t-2 border-black">
   <div class="container-custom">

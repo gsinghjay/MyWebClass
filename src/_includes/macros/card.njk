@@ -4,7 +4,7 @@
     {# Render Sanity CDN image with optimization #}
     <div class="h-48 overflow-hidden">
       <img
-        src="https://cdn.sanity.io/images/gc7vlywa/production/{{ style.heroImage.asset._ref | replace('image-', '') | replace('-jpg', '.jpg') | replace('-jpeg', '.jpeg') | replace('-png', '.png') | replace('-webp', '.webp') | replace('-gif', '.gif') }}?w=400&fit=crop&auto=format"
+        src="https://cdn.sanity.io/images/{{ sanityConfig.projectId }}/{{ sanityConfig.dataset }}/{{ style.heroImage.asset._ref | replace('image-', '') | replace('-jpg', '.jpg') | replace('-jpeg', '.jpeg') | replace('-png', '.png') | replace('-webp', '.webp') | replace('-gif', '.gif') }}?w=400&fit=crop&auto=format"
         alt="{{ style.heroImage.alt or style.title }}"
         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         loading="lazy"
@@ -50,8 +50,8 @@
   {% if submission.screenshot and submission.screenshot.asset and submission.screenshot.asset._ref %}
     <div class="h-64 overflow-hidden relative">
       <img
-        src="https://cdn.sanity.io/images/gc7vlywa/production/{{ submission.screenshot.asset._ref | replace('image-', '') | replace('-jpg', '.jpg') | replace('-jpeg', '.jpeg') | replace('-png', '.png') | replace('-webp', '.webp') | replace('-gif', '.gif') }}?w=600&fit=crop&auto=format"
-        alt="{{ submission.screenshot.alt or (submission.styleRef.title + ' demo by ' + submission.submitterName) }}"
+        src="https://cdn.sanity.io/images/{{ sanityConfig.projectId }}/{{ sanityConfig.dataset }}/{{ submission.screenshot.asset._ref | replace('image-', '') | replace('-jpg', '.jpg') | replace('-jpeg', '.jpeg') | replace('-png', '.png') | replace('-webp', '.webp') | replace('-gif', '.gif') }}?w=600&fit=crop&auto=format"
+        alt="{{ submission.screenshot.alt or ((submission.styleRef.title if submission.styleRef else 'Design') + ' demo by ' + (submission.submitterName or 'Anonymous')) }}"
         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         loading="lazy"
       />
@@ -89,6 +89,54 @@
         View Demo
         <span class="sr-only">(opens in new tab)</span>
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+        </svg>
+      </a>
+      {% endif %}
+    </div>
+  </div>
+</article>
+{% endmacro %}
+
+{% macro submissionCard(submission) %}
+<article class="card card-hover group bg-white">
+  {% if submission.screenshot and submission.screenshot.asset and submission.screenshot.asset._ref %}
+    <div class="h-48 overflow-hidden relative">
+      <img
+        src="https://cdn.sanity.io/images/{{ sanityConfig.projectId }}/{{ sanityConfig.dataset }}/{{ submission.screenshot.asset._ref | replace('image-', '') | replace('-jpg', '.jpg') | replace('-jpeg', '.jpeg') | replace('-png', '.png') | replace('-webp', '.webp') | replace('-gif', '.gif') }}?w=400&fit=crop&auto=format"
+        alt="{{ submission.screenshot.alt or ((submission.styleRef.title if submission.styleRef else 'Design') + ' demo by ' + (submission.submitterName or 'Anonymous')) }}"
+        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+        loading="lazy"
+      />
+      {% if submission.styleRef and submission.styleRef.title %}
+      <span class="absolute top-3 left-3 bg-black text-white px-2 py-1 text-xs font-medium">
+        {{ submission.styleRef.title }}
+      </span>
+      {% endif %}
+    </div>
+  {% else %}
+    <div class="h-48 bg-neutral-100 flex items-center justify-center">
+      <span class="text-5xl">🎨</span>
+    </div>
+  {% endif %}
+
+  <div class="p-4 border-t-2 border-black">
+    <div class="flex justify-between items-center">
+      {% if submission.submitterName %}
+      <span class="text-sm text-neutral-500">by {{ submission.submitterName }}</span>
+      {% else %}
+      <span class="text-sm text-neutral-500">Anonymous</span>
+      {% endif %}
+      {% if submission.demoUrl %}
+      <a
+        href="{{ submission.demoUrl }}"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center gap-1.5 bg-black text-white px-3 py-1.5 text-sm font-medium hover:bg-neutral-800 transition-colors"
+      >
+        View Demo
+        <span class="sr-only">(opens in new tab)</span>
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
         </svg>
       </a>
