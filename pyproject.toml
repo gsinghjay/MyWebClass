@@ -33,7 +33,8 @@ name = "origin"
 type = "github"
 
 [tool.semantic_release.changelog]
-# Changelog configuration
+# Changelog configuration - use 'init' mode to rebuild from history
+mode = "init"
 exclude_commit_patterns = [
     "^chore\\(release\\):",
     "^ci:",
@@ -42,6 +43,7 @@ exclude_commit_patterns = [
 
 [tool.semantic_release.changelog.default_templates]
 changelog_file = "CHANGELOG.md"
+output_format = "md"
 
 [tool.semantic_release.publish]
 # Disable PyPI publishing (not a Python package)
