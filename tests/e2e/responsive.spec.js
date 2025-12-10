@@ -8,7 +8,9 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Responsive Layout', () => {
   test.describe('Mobile (375px)', () => {
-    test.use({ viewport: { width: 375, height: 667 } });
+    test.beforeEach(async ({ page }) => {
+      await page.setViewportSize({ width: 375, height: 667 });
+    });
 
     test('should show hamburger menu', async ({ page }) => {
       await page.goto('/');
@@ -79,7 +81,9 @@ test.describe('Responsive Layout', () => {
   });
 
   test.describe('Tablet (768px)', () => {
-    test.use({ viewport: { width: 768, height: 1024 } });
+    test.beforeEach(async ({ page }) => {
+      await page.setViewportSize({ width: 768, height: 1024 });
+    });
 
     test('should show desktop navigation', async ({ page }) => {
       await page.goto('/');
@@ -100,7 +104,9 @@ test.describe('Responsive Layout', () => {
   });
 
   test.describe('Desktop (1280px)', () => {
-    test.use({ viewport: { width: 1280, height: 800 } });
+    test.beforeEach(async ({ page }) => {
+      await page.setViewportSize({ width: 1280, height: 800 });
+    });
 
     test('should show 3-column gallery', async ({ page }) => {
       await page.goto('/');
