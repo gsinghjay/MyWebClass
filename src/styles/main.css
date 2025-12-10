@@ -131,6 +131,19 @@
     @apply absolute -top-10 left-0 bg-black text-white px-4 py-2 z-50 focus:top-0;
   }
 
+  .filter-scroll-container {
+    @apply relative;
+  }
+
+  .filter-scroll-container::after {
+    content: '';
+    @apply absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none md:hidden z-10;
+  }
+
+  .filter-btn {
+    @apply min-h-[44px];
+  }
+
   .container-custom {
     @apply max-w-container-xl mx-auto px-6;
   }
