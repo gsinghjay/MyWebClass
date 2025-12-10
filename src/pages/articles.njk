@@ -1,0 +1,42 @@
+---
+layout: layouts/base.njk
+title: Articles
+description: Educational articles about design principles and movements
+permalink: /articles/
+---
+
+{% from "macros/card.njk" import articleCard with context %}
+
+{# Hero Section #}
+<section class="border-b-2 border-black">
+  <div class="container-custom py-12 md:py-16">
+    <h1 class="text-h1 mb-4">Educational Articles</h1>
+    <p class="text-lg text-neutral-600 max-w-2xl">
+      Deepen your understanding of design principles with our collection of articles covering
+      design movements, techniques, and creative philosophies.
+    </p>
+  </div>
+</section>
+
+{# Articles Grid #}
+<section class="section-padding">
+  <div class="container-custom">
+    {% if articles.length %}
+      {# Responsive grid: 1 col mobile, 2 col tablet, 3 col desktop (AC4) #}
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for article in articles %}
+          {{ articleCard(article) }}
+        {% endfor %}
+      </div>
+    {% else %}
+      {# Empty state #}
+      <div class="text-center py-16">
+        <span class="text-6xl mb-4 block" aria-hidden="true">📚</span>
+        <h2 class="text-h3 mb-2">No Articles Yet</h2>
+        <p class="text-neutral-500 max-w-md mx-auto">
+          We're working on educational content. Check back soon for articles about design principles and movements.
+        </p>
+      </div>
+    {% endif %}
+  </div>
+</section>

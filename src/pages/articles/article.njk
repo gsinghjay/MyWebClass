@@ -1,0 +1,188 @@
+---
+pagination:
+  data: articles
+  size: 1
+  alias: article
+permalink: "/articles/{{ article.slug.current or article.slug }}/"
+layout: layouts/base.njk
+---
+
+{% set title = article.title %}
+{% set description = article.body[0].children[0].text | truncate(160) if article.body and article.body[0] and article.body[0].children else "Educational article about design principles" %}
+
+{# Back Navigation #}
+<div class="container-custom py-4">
+  <a href="{{ '/articles/' | url }}" class="text-sm text-neutral-500 hover:text-black inline-flex items-center gap-2 min-h-[44px] py-2">
+    ← Back to Articles
+  </a>
+</div>
+
+{# Article Container - max-w-3xl for readability per AC5 #}
+<article class="container-custom max-w-3xl pb-16">
+  {# Article Header #}
+  <header class="mb-8 pb-8 border-b-2 border-black">
+    <h1 class="text-h1 mb-4">{{ article.title }}</h1>
+
+    {# Author and Date #}
+    <div class="flex flex-wrap items-center gap-4 text-neutral-500">
+      {% if article.author %}
+        <div class="flex items-center gap-3">
+          {% if article.author.image and article.author.image.asset and article.author.image.asset._ref %}
+            {% set authorImgRef = article.author.image.asset._ref | replace('image-', '') | replace('-jpg', '.jpg') | replace('-jpeg', '.jpeg') | replace('-png', '.png') | replace('-webp', '.webp') | replace('-gif', '.gif') %}
+            <img
+              src="https://cdn.sanity.io/images/{{ sanityConfig.projectId }}/{{ sanityConfig.dataset }}/{{ authorImgRef }}?w=48&h=48&fit=crop&auto=format"
+              alt="{{ article.author.name }}"
+              class="w-10 h-10 rounded-full object-cover border-2 border-black"
+              loading="lazy"
+            />
+          {% endif %}
+          <span class="font-medium text-black">{{ article.author.name }}</span>
+        </div>
+      {% endif %}
+
+      {% if article.publishedAt %}
+        <time datetime="{{ article.publishedAt }}" class="text-sm">
+          {{ article.publishedAt | date("MMMM d, yyyy") }}
+        </time>
+      {% endif %}
+    </div>
+  </header>
+
+  {# Article Body - Portable Text Rendering #}
+  {# Macro to render text spans with marks (bold, italic, links) #}
+  {% macro renderSpan(span, block) %}
+    {% set linkDef = null %}
+    {%- if span.marks and span.marks.length -%}
+      {%- for mark in span.marks -%}
+        {%- if mark == 'strong' -%}<strong>{%- endif -%}
+        {%- if mark == 'em' -%}<em>{%- endif -%}
+        {# Check for link mark #}
+        {% if block and block.markDefs %}
+           {% for def in block.markDefs %}
+             {% if def._key == mark and def._type == 'link' %}
+               {% set linkDef = def %}
+               <a href="{{ def.href }}" class="underline hover:text-swiss-red">
+             {% endif %}
+           {% endfor %}
+        {% endif %}
+      {%- endfor -%}
+    {%- endif -%}
+    {{- span.text -}}
+    {%- if span.marks and span.marks.length -%}
+      {%- for mark in span.marks | reverse -%}
+        {%- if mark == 'em' -%}</em>{%- endif -%}
+        {%- if mark == 'strong' -%}</strong>{%- endif -%}
+        {# Close link mark #}
+        {% if block and block.markDefs %}
+           {% for def in block.markDefs %}
+             {% if def._key == mark and def._type == 'link' %}
+               </a>
+             {% endif %}
+           {% endfor %}
+        {% endif %}
+      {%- endfor -%}
+    {%- endif -%}
+  {% endmacro %}
+
+  <div class="prose prose-lg max-w-none">
+    {% set inBulletList = false %}
+    {% set inNumberList = false %}
+
+    {% for block in article.body %}
+      {# Check if we need to close a list #}
+      {% if inBulletList and (block.listItem != 'bullet' or not block.listItem) %}
+        </ul>
+        {% set inBulletList = false %}
+      {% endif %}
+      {% if inNumberList and (block.listItem != 'number' or not block.listItem) %}
+        </ol>
+        {% set inNumberList = false %}
+      {% endif %}
+
+      {% if block._type == 'block' %}
+        {# Handle list items #}
+        {% if block.listItem == 'bullet' %}
+          {% if not inBulletList %}
+            <ul class="list-disc list-inside mb-4 space-y-2 text-neutral-700">
+            {% set inBulletList = true %}
+          {% endif %}
+          <li>{% for span in block.children %}{{ renderSpan(span, block) }}{% endfor %}</li>
+        {% elif block.listItem == 'number' %}
+          {% if not inNumberList %}
+            <ol class="list-decimal list-inside mb-4 space-y-2 text-neutral-700">
+            {% set inNumberList = true %}
+          {% endif %}
+          <li>{% for span in block.children %}{{ renderSpan(span, block) }}{% endfor %}</li>
+        {# Handle different block styles #}
+        {% elif block.style == 'h2' %}
+          <h2 class="text-h2 mt-10 mb-4">{% for span in block.children %}{{ renderSpan(span, block) }}{% endfor %}</h2>
+        {% elif block.style == 'h3' %}
+          <h3 class="text-h3 mt-8 mb-3">{% for span in block.children %}{{ renderSpan(span, block) }}{% endfor %}</h3>
+        {% elif block.style == 'h4' %}
+          <h4 class="text-h4 mt-6 mb-2">{% for span in block.children %}{{ renderSpan(span, block) }}{% endfor %}</h4>
+        {% elif block.style == 'blockquote' %}
+          <blockquote class="border-l-4 border-black pl-4 italic my-6 text-neutral-600">
+            {% for span in block.children %}{{ renderSpan(span, block) }}{% endfor %}
+          </blockquote>
+        {% else %}
+          {# Regular paragraph #}
+          <p class="mb-4 text-neutral-700 leading-relaxed">{% for span in block.children %}{{ renderSpan(span, block) }}{% endfor %}</p>
+        {% endif %}
+      {% elif block._type == 'image' and block.asset and block.asset._ref %}
+        {# Image block with alt text (FR47) #}
+        {% set imgRef = block.asset._ref | replace('image-', '') | replace('-jpg', '.jpg') | replace('-jpeg', '.jpeg') | replace('-png', '.png') | replace('-webp', '.webp') | replace('-gif', '.gif') %}
+        <figure class="my-8">
+          <img
+            src="https://cdn.sanity.io/images/{{ sanityConfig.projectId }}/{{ sanityConfig.dataset }}/{{ imgRef }}?w=800&fit=max&auto=format"
+            alt="{{ block.alt or 'Article image' }}"
+            class="w-full border-2 border-black"
+            loading="lazy"
+          />
+          {% if block.caption %}
+          <figcaption class="text-sm text-neutral-500 mt-2 text-center">{{ block.caption }}</figcaption>
+          {% endif %}
+        </figure>
+      {% endif %}
+    {% endfor %}
+
+    {# Close any remaining open lists #}
+    {% if inBulletList %}</ul>{% endif %}
+    {% if inNumberList %}</ol>{% endif %}
+  </div>
+
+  {# Author Bio Section (AC3) #}
+  {% if article.author and article.author.bio %}
+  <aside class="mt-12 pt-8 border-t-2 border-black">
+    <h2 class="text-overline text-neutral-400 mb-4">About the Author</h2>
+    <div class="flex flex-col sm:flex-row gap-4 items-start">
+      {% if article.author.image and article.author.image.asset and article.author.image.asset._ref %}
+        {% set authorImgRef = article.author.image.asset._ref | replace('image-', '') | replace('-jpg', '.jpg') | replace('-jpeg', '.jpeg') | replace('-png', '.png') | replace('-webp', '.webp') | replace('-gif', '.gif') %}
+        <img
+          src="https://cdn.sanity.io/images/{{ sanityConfig.projectId }}/{{ sanityConfig.dataset }}/{{ authorImgRef }}?w=80&h=80&fit=crop&auto=format"
+          alt="{{ article.author.name }}"
+          class="w-16 h-16 rounded-full object-cover border-2 border-black flex-shrink-0"
+          loading="lazy"
+        />
+      {% endif %}
+      <div>
+        <h3 class="font-bold text-lg mb-1">{{ article.author.name }}</h3>
+        <p class="text-neutral-600">{{ article.author.bio }}</p>
+      </div>
+    </div>
+  </aside>
+  {% endif %}
+
+  {# Related Design Style Link (AC1) #}
+  {% if article.relatedStyle %}
+  <aside class="mt-8 pt-8 border-t border-neutral-200">
+    <h2 class="text-overline text-neutral-400 mb-4">Related Design Style</h2>
+    <a
+      href="{{ '/styles/' | url }}{{ article.relatedStyle.slug.current or article.relatedStyle.slug }}/"
+      class="inline-flex items-center gap-2 px-4 py-3 border-2 border-black hover:bg-black hover:text-white transition-colors min-h-[44px]"
+    >
+      <span class="font-medium">{{ article.relatedStyle.title }}</span>
+      <span aria-hidden="true">→</span>
+    </a>
+  </aside>
+  {% endif %}
+</article>

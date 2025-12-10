@@ -1,6 +1,6 @@
-{# Sanity CDN config - hardcoded since macros don't have access to global data #}
-{% set sanityProjectId = "gc7vlywa" %}
-{% set sanityDataset = "production" %}
+{# Sanity CDN config - using global sanityConfig if available, else fallback #}
+{% set sanityProjectId = sanityConfig.projectId or "gc7vlywa" %}
+{% set sanityDataset = sanityConfig.dataset or "production" %}
 
 {% macro galleryCard(style) %}
 <article class="card card-hover cursor-pointer group">
@@ -147,5 +147,44 @@
       {% endif %}
     </div>
   </div>
+</article>
+{% endmacro %}
+
+{% macro articleCard(article) %}
+<article class="article-card card card-hover group bg-white">
+  <a href="/articles/{{ article.slug.current or article.slug }}/" class="block h-full">
+    <div class="p-6">
+      {# Title #}
+      <h3 class="text-h4 group-hover:text-neutral-600 transition-colors mb-3">
+        {{ article.title }}
+      </h3>
+
+      {# Author and Date #}
+      <div class="flex flex-wrap items-center gap-2 text-sm text-neutral-500 mb-3">
+        {% if article.author %}
+        <span>by {{ article.author.name }}</span>
+        {% endif %}
+        {% if article.author and article.publishedAt %}
+        <span aria-hidden="true">·</span>
+        {% endif %}
+        {% if article.publishedAt %}
+        <time datetime="{{ article.publishedAt }}">
+          {# Format date inline since we can't use filters in macros #}
+          {{ article.publishedAt | truncate(10, true, '') }}
+        </time>
+        {% endif %}
+      </div>
+
+      {# Excerpt - using extractExcerpt filter #}
+      <p class="text-body-sm text-neutral-600 line-clamp-3">
+        {{ article.body | extractExcerpt(150) }}
+      </p>
+
+      {# Read More Link #}
+      <div class="mt-4">
+        <span class="text-sm font-medium text-swiss-red">Read Article →</span>
+      </div>
+    </div>
+  </a>
 </article>
 {% endmacro %}

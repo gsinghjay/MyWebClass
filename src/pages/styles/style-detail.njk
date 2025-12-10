@@ -197,3 +197,32 @@ layout: layouts/base.njk
     </div>
   </div>
 </section>
+
+{# Related Articles Section (AC2) #}
+{% set relatedArticles = [] %}
+{% for article in articles %}
+  {% if article.relatedStyle and article.relatedStyle._id == style._id %}
+    {% set relatedArticles = (relatedArticles.push(article), relatedArticles) %}
+  {% endif %}
+{% endfor %}
+
+{% if relatedArticles.length %}
+<section class="border-t-2 border-black">
+  <div class="container-custom py-12">
+    <h2 class="text-h3 mb-6">Related Reading</h2>
+    <div class="space-y-4">
+      {% for article in relatedArticles %}
+      <a
+        href="{{ '/articles/' | url }}{{ article.slug.current or article.slug }}/"
+        class="block p-4 border-2 border-black hover:bg-neutral-100 transition-colors min-h-[44px]"
+      >
+        <h3 class="font-bold mb-1">{{ article.title }}</h3>
+        {% if article.author %}
+        <span class="text-sm text-neutral-500">by {{ article.author.name }}</span>
+        {% endif %}
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
