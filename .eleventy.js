@@ -52,7 +52,9 @@ module.exports = function(eleventyConfig) {
       includes: "_includes",
       data: "_data"
     },
-    pathPrefix: process.env.GITHUB_ACTIONS ? "/MyWebClass/" : "/",
+    // Use DEPLOY_PATH_PREFIX for GitHub Pages deployment only
+    // This avoids pathPrefix issues during CI testing where GITHUB_ACTIONS is auto-set
+    pathPrefix: process.env.DEPLOY_PATH_PREFIX || "/",
     templateFormats: ["njk", "md", "html"],
     htmlTemplateEngine: "njk",
     markdownTemplateEngine: "njk"
