@@ -97,6 +97,10 @@ jobs:
         run: npx playwright test --reporter=json,html > playwright-results.json || true
         env:
           CI: true
+          SANITY_PROJECT_ID: ${{ secrets.SANITY_PROJECT_ID }}
+          SANITY_DATASET: ${{ secrets.SANITY_DATASET }}
+          SANITY_API_VERSION: ${{ secrets.SANITY_API_VERSION }}
+          SANITY_TOKEN: ${{ secrets.SANITY_TOKEN }}
 
       - name: Extract test results
         id: test-results

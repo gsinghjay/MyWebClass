@@ -33,7 +33,7 @@
 
       <button
         id="mobile-menu-button"
-        class="md:hidden p-2 text-black"
+        class="md:hidden p-3 text-black"
         aria-label="Toggle mobile menu"
         aria-expanded="false"
         aria-controls="mobile-menu"
@@ -48,20 +48,20 @@
     </div>
 
     <div id="mobile-menu" class="hidden md:hidden border-t-2 border-black">
-      <div class="py-4 space-y-4">
-        <a href="{{ '/' | url }}" class="block text-sm font-medium text-neutral-500 hover:text-black transition-colors">
+      <div class="py-4 space-y-2">
+        <a href="{{ '/' | url }}" class="block text-sm font-medium text-neutral-500 hover:text-black transition-colors py-2 min-h-[44px] flex items-center">
           Gallery
         </a>
-        <a href="{{ '/about/' | url }}" class="block text-sm font-medium text-neutral-500 hover:text-black transition-colors">
+        <a href="{{ '/about/' | url }}" class="block text-sm font-medium text-neutral-500 hover:text-black transition-colors py-2 min-h-[44px] flex items-center">
           About
         </a>
-        <a href="{{ '/submit/' | url }}" class="block text-sm font-medium text-neutral-500 hover:text-black transition-colors">
+        <a href="{{ '/submit/' | url }}" class="block text-sm font-medium text-neutral-500 hover:text-black transition-colors py-2 min-h-[44px] flex items-center">
           Submit
         </a>
-        <a href="{{ '/admin/' | url }}" class="block text-sm font-medium text-neutral-500 hover:text-black transition-colors">
+        <a href="{{ '/admin/' | url }}" class="block text-sm font-medium text-neutral-500 hover:text-black transition-colors py-2 min-h-[44px] flex items-center">
           Instructor
         </a>
-        <a href="{{ '/submit/' | url }}" class="btn btn-primary text-sm w-full block text-center">
+        <a href="{{ '/submit/' | url }}" class="btn btn-primary text-sm w-full block text-center min-h-[44px] flex items-center justify-center">
           Submit Demo
         </a>
       </div>
