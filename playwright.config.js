@@ -17,6 +17,10 @@ export default defineConfig({
     baseURL: 'http://localhost:8080',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
+    // Wait for network to be idle before considering navigation complete
+    // This ensures CSS and JS are fully loaded before tests run
+    navigationTimeout: 30000,
+    actionTimeout: 10000,
   },
 
   projects: [

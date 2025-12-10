@@ -8,7 +8,14 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Gallery Filter', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/', { waitUntil: 'networkidle' });
+    // Wait for filter JavaScript to initialize (it sets aria-pressed on All button)
+    await page.waitForFunction(() => {
+      const allBtn = document.querySelector('.filter-btn[data-filter="all"]');
+      return allBtn && allBtn.getAttribute('aria-pressed') === 'true';
+    }, { timeout: 5000 }).catch(() => {
+      // If JS doesn't load, tests will fail naturally
+    });
   });
 
   test.describe('AC1: Filter Buttons Display', () => {
@@ -141,12 +148,13 @@ test.describe('Gallery Filter', () => {
   test.describe('AC4: URL-Based Filter State', () => {
     test('should apply filter from click and update URL', async ({ page }) => {
       // Start on homepage with no filter
-      await page.goto('/');
+      await page.goto('/', { waitUntil: 'networkidle' });
       await expect(page).not.toHaveURL(/\?category=/);
 
       // Click minimalist filter
       const minimalistButton = page.locator('.filter-btn[data-filter="minimalist"]');
       await minimalistButton.click();
+      await page.waitForTimeout(100);
 
       // Button should now be active
       await expect(minimalistButton).toHaveAttribute('aria-pressed', 'true');
@@ -164,10 +172,11 @@ test.describe('Gallery Filter', () => {
 
     test('should preserve filter on page refresh', async ({ page }) => {
       // Navigate with filter param
-      await page.goto('/');
+      await page.goto('/', { waitUntil: 'networkidle' });
 
       // Click to apply filter first
       await page.click('.filter-btn[data-filter="minimalist"]');
+      await page.waitForTimeout(100);
       await expect(page.locator('.filter-btn[data-filter="minimalist"]')).toHaveAttribute('aria-pressed', 'true');
 
       // Reload the page
@@ -183,18 +192,21 @@ test.describe('Gallery Filter', () => {
 
     test('should handle browser back/forward navigation', async ({ page }) => {
       // Start at home
-      await page.goto('/');
+      await page.goto('/', { waitUntil: 'networkidle' });
 
       // Apply first filter
       await page.click('.filter-btn[data-filter="digital"]');
+      await page.waitForTimeout(100);
       await expect(page).toHaveURL(/\?category=digital/);
 
       // Apply second filter
       await page.click('.filter-btn[data-filter="retro"]');
+      await page.waitForTimeout(100);
       await expect(page).toHaveURL(/\?category=retro/);
 
       // Go back
       await page.goBack();
+      await page.waitForTimeout(100);
       await expect(page).toHaveURL(/\?category=digital/);
 
       // Digital button should be active
@@ -227,7 +239,7 @@ test.describe('Gallery Filter', () => {
       // Disable JavaScript
       await page.route('**/*.js', route => route.abort());
 
-      await page.goto('/');
+      await page.goto('/', { waitUntil: 'networkidle' });
 
       // All gallery cards should be visible (none hidden)
       const cards = page.locator('.gallery-card');

@@ -9,24 +9,24 @@ import { test, expect } from '@playwright/test';
 test.describe('Educational Articles', () => {
   test.describe('AC4: Article Listing Page', () => {
     test('should render article listing page at /articles/', async ({ page }) => {
-      await page.goto('/articles/');
+      await page.goto('/articles/', { waitUntil: 'networkidle' });
       await expect(page).toHaveURL(/\/articles\//);
     });
 
     test('should display page title', async ({ page }) => {
-      await page.goto('/articles/');
+      await page.goto('/articles/', { waitUntil: 'networkidle' });
       const heading = page.locator('h1');
       await expect(heading).toContainText('Articles');
     });
 
     test('should display page description', async ({ page }) => {
-      await page.goto('/articles/');
+      await page.goto('/articles/', { waitUntil: 'networkidle' });
       const description = page.locator('p').first();
       await expect(description).toContainText('design principles');
     });
 
     test('should display empty state when no articles exist', async ({ page }) => {
-      await page.goto('/articles/');
+      await page.goto('/articles/', { waitUntil: 'networkidle' });
       // Since we have 0 articles from Sanity, check for empty state
       const emptyState = page.locator('text=No Articles Yet');
       // Either we have articles or empty state
@@ -39,7 +39,7 @@ test.describe('Educational Articles', () => {
     });
 
     test('should have responsive grid layout', async ({ page }) => {
-      await page.goto('/articles/');
+      await page.goto('/articles/', { waitUntil: 'networkidle' });
 
       // Check the grid container within section-padding has correct responsive classes
       // or if empty state is shown (no grid needed)
@@ -63,7 +63,7 @@ test.describe('Educational Articles', () => {
   test.describe('AC5: Responsive Article Layout', () => {
     test('should adapt to mobile viewport', async ({ page }) => {
       await page.setViewportSize({ width: 375, height: 667 });
-      await page.goto('/articles/');
+      await page.goto('/articles/', { waitUntil: 'networkidle' });
 
       // Page should load without errors
       await expect(page.locator('h1')).toBeVisible();
@@ -71,14 +71,14 @@ test.describe('Educational Articles', () => {
 
     test('should adapt to tablet viewport', async ({ page }) => {
       await page.setViewportSize({ width: 768, height: 1024 });
-      await page.goto('/articles/');
+      await page.goto('/articles/', { waitUntil: 'networkidle' });
 
       await expect(page.locator('h1')).toBeVisible();
     });
 
     test('should adapt to desktop viewport', async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 800 });
-      await page.goto('/articles/');
+      await page.goto('/articles/', { waitUntil: 'networkidle' });
 
       await expect(page.locator('h1')).toBeVisible();
     });
@@ -87,7 +87,7 @@ test.describe('Educational Articles', () => {
   test.describe('Navigation', () => {
     test('should have Articles link in desktop navigation', async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 800 });
-      await page.goto('/');
+      await page.goto('/', { waitUntil: 'networkidle' });
 
       const articlesLink = page.locator('nav a[href*="/articles/"]').first();
       await expect(articlesLink).toBeVisible();
@@ -96,7 +96,7 @@ test.describe('Educational Articles', () => {
 
     test('should have Articles link in mobile navigation', async ({ page }) => {
       await page.setViewportSize({ width: 375, height: 667 });
-      await page.goto('/');
+      await page.goto('/', { waitUntil: 'networkidle' });
 
       // Open mobile menu
       const menuButton = page.locator('#mobile-menu-button');
@@ -112,14 +112,14 @@ test.describe('Educational Articles', () => {
 
     test('should navigate to articles page from navigation', async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 800 });
-      await page.goto('/');
+      await page.goto('/', { waitUntil: 'networkidle' });
 
       await page.click('nav a[href*="/articles/"]');
       await expect(page).toHaveURL(/\/articles\//);
     });
 
     test('should navigate from articles listing to homepage', async ({ page }) => {
-      await page.goto('/articles/');
+      await page.goto('/articles/', { waitUntil: 'networkidle' });
 
       // Click on gallery/home link
       const homeLink = page.locator('nav a[href="/"]').first();
@@ -132,7 +132,7 @@ test.describe('Educational Articles', () => {
   test.describe('Touch Targets (Accessibility)', () => {
     test('navigation links should have minimum 44px touch target', async ({ page }) => {
       await page.setViewportSize({ width: 375, height: 667 });
-      await page.goto('/articles/');
+      await page.goto('/articles/', { waitUntil: 'networkidle' });
 
       // Check back link (if visible) has min height
       const backLink = page.locator('a:has-text("Back")').first();
@@ -146,7 +146,7 @@ test.describe('Educational Articles', () => {
 
     test('mobile menu button should have minimum 44px touch target', async ({ page }) => {
       await page.setViewportSize({ width: 375, height: 667 });
-      await page.goto('/articles/');
+      await page.goto('/articles/', { waitUntil: 'networkidle' });
 
       const menuButton = page.locator('#mobile-menu-button');
       const box = await menuButton.boundingBox();
@@ -162,7 +162,7 @@ test.describe('Educational Articles', () => {
   test.describe('Style Detail Page - Related Articles Section', () => {
     test('should have Related Reading section structure on style pages', async ({ page }) => {
       // Navigate to a style detail page
-      await page.goto('/styles/bauhaus/');
+      await page.goto('/styles/bauhaus/', { waitUntil: 'networkidle' });
 
       // The Related Reading section should exist in HTML (may be hidden if no articles)
       // Check that the page loads successfully
@@ -170,7 +170,7 @@ test.describe('Educational Articles', () => {
     });
 
     test('related articles section should only appear when articles exist', async ({ page }) => {
-      await page.goto('/styles/minimalism/');
+      await page.goto('/styles/minimalism/', { waitUntil: 'networkidle' });
 
       // Since there are 0 articles, the Related Reading section should not appear
       const relatedSection = page.locator('text=Related Reading');
@@ -184,14 +184,14 @@ test.describe('Educational Articles', () => {
 
   test.describe('SEO (AC6)', () => {
     test('articles page should have proper title', async ({ page }) => {
-      await page.goto('/articles/');
+      await page.goto('/articles/', { waitUntil: 'networkidle' });
 
       const title = await page.title();
       expect(title.toLowerCase()).toContain('article');
     });
 
     test('articles page should have meta description', async ({ page }) => {
-      await page.goto('/articles/');
+      await page.goto('/articles/', { waitUntil: 'networkidle' });
 
       // Check for meta description
       const metaDescription = page.locator('meta[name="description"]');
@@ -204,7 +204,7 @@ test.describe('Educational Articles', () => {
 
   test.describe('Article Cards (when articles exist)', () => {
     test('article cards should have accessible link structure', async ({ page }) => {
-      await page.goto('/articles/');
+      await page.goto('/articles/', { waitUntil: 'networkidle' });
 
       const articleCards = page.locator('.article-card');
       const cardCount = await articleCards.count();
@@ -222,7 +222,7 @@ test.describe('Educational Articles', () => {
     });
 
     test('article cards should display title', async ({ page }) => {
-      await page.goto('/articles/');
+      await page.goto('/articles/', { waitUntil: 'networkidle' });
 
       const articleCards = page.locator('.article-card');
       const cardCount = await articleCards.count();
