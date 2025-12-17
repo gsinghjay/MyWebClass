@@ -3,8 +3,8 @@
 # Team: New Jersey Institute of Technology
 
 [build]
-  # Build command - npm ci ensures clean install
-  command = "npm ci && npm run build"
+  # Build command - run CSS then Eleventy directly (avoids npm-run-all path issues)
+  command = "npm ci && npm run build:css && npm run build:eleventy"
 
   # Directory to publish (Eleventy output)
   publish = "public"
@@ -14,6 +14,8 @@
 
 [build.environment]
   NODE_VERSION = "20"
+  # Ensure devDependencies are installed
+  NPM_FLAGS = "--include=dev"
 
 # Form handling - Netlify will detect forms with netlify attribute
 [build.processing]
