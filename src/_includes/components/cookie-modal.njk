@@ -1,0 +1,96 @@
+<div id="cookie-modal" class="fixed inset-0 z-50 transition-opacity duration-300 opacity-0 invisible" role="dialog" aria-modal="true" aria-labelledby="cookie-modal-title">
+  <!-- Backdrop -->
+  <div id="cookie-modal-backdrop" class="absolute inset-0 bg-black bg-opacity-75"></div>
+
+  <!-- Modal content wrapper (pointer-events-none allows backdrop clicks) -->
+  <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+    <div class="bg-black border border-neutral-700 p-6 max-w-md w-full text-white relative pointer-events-auto">
+      <h2 id="cookie-modal-title" class="font-bold text-xl mb-4">Cookie Preferences</h2>
+
+      <!-- Current status -->
+      <p class="text-sm text-neutral-400 mb-4">
+        Current status: <span id="cookie-status-text" class="text-white">Not set</span>
+      </p>
+
+      <!-- Analytics toggle -->
+      <div class="flex items-center justify-between py-4 border-b border-neutral-700">
+        <div class="flex-1 pr-4">
+          <label for="analytics-toggle" class="font-medium">
+            Analytics Cookies: <span id="analytics-status" class="text-neutral-300" aria-live="polite">Disabled</span>
+          </label>
+          <p class="text-sm text-neutral-400 mt-1">Help us understand how visitors use our site</p>
+        </div>
+        <button
+          type="button"
+          role="switch"
+          aria-checked="false"
+          id="analytics-toggle"
+          class="cookie-toggle relative w-11 h-6 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full bg-neutral-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black transition-colors"
+        >
+          <span class="cookie-toggle-knob absolute w-4 h-4 rounded-full bg-white transition-transform left-1"></span>
+        </button>
+      </div>
+
+      <!-- Marketing toggle (disabled for MVP) -->
+      <div class="flex items-center justify-between py-4 border-b border-neutral-700 opacity-50">
+        <div class="flex-1 pr-4">
+          <label for="marketing-toggle" class="font-medium">Marketing Cookies: <span class="text-neutral-300">N/A</span></label>
+          <p class="text-sm text-neutral-400 mt-1">Currently not used</p>
+        </div>
+        <button
+          type="button"
+          role="switch"
+          aria-checked="false"
+          aria-disabled="true"
+          id="marketing-toggle"
+          disabled
+          class="cookie-toggle relative w-11 h-6 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full bg-neutral-700 cursor-not-allowed"
+        >
+          <span class="cookie-toggle-knob absolute w-4 h-4 rounded-full bg-white left-1"></span>
+        </button>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex flex-wrap gap-3 mt-6">
+        <button
+          id="cookie-modal-cancel"
+          type="button"
+          class="px-4 py-2 min-h-[44px] border border-white text-sm hover:bg-white hover:text-black transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+        >
+          Cancel
+        </button>
+        <button
+          id="cookie-modal-save"
+          type="button"
+          class="px-4 py-2 min-h-[44px] bg-white text-black text-sm font-medium hover:bg-neutral-200 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+        >
+          Save Preferences
+        </button>
+      </div>
+
+      <!-- Cookie Policy link -->
+      <p class="text-sm text-neutral-400 mt-4">
+        <a
+          href="{{ '/legal/cookies/' | url }}"
+          target="_blank"
+          rel="noopener"
+          id="cookie-policy-link"
+          class="inline-flex items-center min-h-[44px] underline hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+          aria-label="View full Cookie Policy (opens in new tab)"
+        >
+          View full Cookie Policy ↗
+        </a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Toast notification for saved preferences -->
+<div
+  id="cookie-toast"
+  class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-black text-white px-6 py-3 text-sm z-50 transition-all duration-300 opacity-0 translate-y-4 invisible"
+  role="status"
+  aria-live="polite"
+>
+  Cookie preferences saved
+</div>

@@ -65,8 +65,8 @@ test.describe('Cookie Consent Banner', () => {
 
       await expect(banner).toBeHidden();
 
-      const consent = await page.evaluate(() => localStorage.getItem('cookie_consent'));
-      expect(consent).toBe('accepted');
+      const consent = await page.evaluate(() => JSON.parse(localStorage.getItem('cookie_consent')));
+      expect(consent.analytics).toBe(true);
     });
 
     test('accept button sets consent to accepted in localStorage', async ({ page }) => {
@@ -75,8 +75,9 @@ test.describe('Cookie Consent Banner', () => {
 
       await page.locator('#cookie-accept').click();
 
-      const consent = await page.evaluate(() => localStorage.getItem('cookie_consent'));
-      expect(consent).toBe('accepted');
+      const consent = await page.evaluate(() => JSON.parse(localStorage.getItem('cookie_consent')));
+      expect(consent.analytics).toBe(true);
+      expect(consent.marketing).toBe(false);
     });
   });
 
@@ -92,8 +93,8 @@ test.describe('Cookie Consent Banner', () => {
 
       await expect(banner).toBeHidden();
 
-      const consent = await page.evaluate(() => localStorage.getItem('cookie_consent'));
-      expect(consent).toBe('rejected');
+      const consent = await page.evaluate(() => JSON.parse(localStorage.getItem('cookie_consent')));
+      expect(consent.analytics).toBe(false);
     });
 
     test('reject button sets consent to rejected in localStorage', async ({ page }) => {
@@ -102,16 +103,17 @@ test.describe('Cookie Consent Banner', () => {
 
       await page.locator('#cookie-reject').click();
 
-      const consent = await page.evaluate(() => localStorage.getItem('cookie_consent'));
-      expect(consent).toBe('rejected');
+      const consent = await page.evaluate(() => JSON.parse(localStorage.getItem('cookie_consent')));
+      expect(consent.analytics).toBe(false);
+      expect(consent.marketing).toBe(false);
     });
   });
 
   test.describe('Returning Visitor Behavior (AC4)', () => {
     test('banner hidden when consent already accepted', async ({ page }) => {
-      // Set consent before visiting
+      // Set consent before visiting (JSON format)
       await page.addInitScript(() => {
-        localStorage.setItem('cookie_consent', 'accepted');
+        localStorage.setItem('cookie_consent', JSON.stringify({ analytics: true, marketing: false }));
       });
 
       await page.goto('/');
@@ -122,9 +124,9 @@ test.describe('Cookie Consent Banner', () => {
     });
 
     test('banner hidden when consent already rejected', async ({ page }) => {
-      // Set consent before visiting
+      // Set consent before visiting (JSON format)
       await page.addInitScript(() => {
-        localStorage.setItem('cookie_consent', 'rejected');
+        localStorage.setItem('cookie_consent', JSON.stringify({ analytics: false, marketing: false }));
       });
 
       await page.goto('/');
@@ -152,25 +154,44 @@ test.describe('Cookie Consent Banner', () => {
       // Banner should still be hidden
       await expect(page.locator('#cookie-banner')).toBeHidden();
 
-      // Consent should still be stored
-      const consent = await page.evaluate(() => localStorage.getItem('cookie_consent'));
-      expect(consent).toBe('accepted');
+      // Consent should still be stored (JSON format)
+      const consent = await page.evaluate(() => JSON.parse(localStorage.getItem('cookie_consent')));
+      expect(consent.analytics).toBe(true);
 
       await context.close();
     });
+
+    test('legacy string format migrates to JSON format', async ({ page }) => {
+      // Set legacy string format consent
+      await page.addInitScript(() => {
+        localStorage.setItem('cookie_consent', 'accepted');
+      });
+
+      await page.goto('/');
+      await page.waitForLoadState('networkidle');
+
+      // Banner should be hidden (consent recognized)
+      await expect(page.locator('#cookie-banner')).toBeHidden();
+
+      // Consent should now be in JSON format after migration
+      const consent = await page.evaluate(() => JSON.parse(localStorage.getItem('cookie_consent')));
+      expect(consent.analytics).toBe(true);
+      expect(consent.marketing).toBe(false);
+    });
   });
 
-  test.describe('Preferences Button (AC5 - MVP)', () => {
-    test('preferences button behaves as accept for MVP', async ({ page }) => {
+  test.describe('Preferences Button (Story 3.2)', () => {
+    test('preferences button opens modal instead of auto-accepting', async ({ page }) => {
       await page.goto('/');
       await page.waitForLoadState('networkidle');
 
       await page.locator('#cookie-preferences').click();
 
+      // Banner should be hidden
       await expect(page.locator('#cookie-banner')).toBeHidden();
 
-      const consent = await page.evaluate(() => localStorage.getItem('cookie_consent'));
-      expect(consent).toBe('accepted');
+      // Modal should be visible
+      await expect(page.locator('#cookie-modal')).toBeVisible();
     });
   });
 
@@ -320,7 +341,7 @@ test.describe('Cookie Consent Banner', () => {
       await expect(cookieSettingsLink).toHaveText('Cookie Settings');
     });
 
-    test('Cookie Settings link re-opens banner', async ({ page }) => {
+    test('Cookie Settings link opens modal (Story 3.2)', async ({ page }) => {
       await page.goto('/');
       await page.waitForLoadState('networkidle');
 
@@ -332,27 +353,33 @@ test.describe('Cookie Consent Banner', () => {
       const cookieSettingsLink = page.locator('#cookie-settings-link');
       await cookieSettingsLink.click();
 
-      // Banner should re-appear
-      await expect(page.locator('#cookie-banner')).toBeVisible();
+      // Modal should open (not banner)
+      await expect(page.locator('#cookie-modal')).toBeVisible();
+      await expect(page.locator('#cookie-banner')).toBeHidden();
     });
 
-    test('user can change consent via Cookie Settings', async ({ page }) => {
+    test('user can change consent via Cookie Settings modal', async ({ page }) => {
       await page.goto('/');
       await page.waitForLoadState('networkidle');
 
       // Accept cookies first
       await page.locator('#cookie-accept').click();
-      let consent = await page.evaluate(() => localStorage.getItem('cookie_consent'));
-      expect(consent).toBe('accepted');
+      let consent = await page.evaluate(() => JSON.parse(localStorage.getItem('cookie_consent')));
+      expect(consent.analytics).toBe(true);
 
-      // Re-open banner via Cookie Settings
+      // Open modal via Cookie Settings
       await page.locator('#cookie-settings-link').click();
-      await expect(page.locator('#cookie-banner')).toBeVisible();
+      await expect(page.locator('#cookie-modal')).toBeVisible();
 
-      // Change to reject
-      await page.locator('#cookie-reject').click();
-      consent = await page.evaluate(() => localStorage.getItem('cookie_consent'));
-      expect(consent).toBe('rejected');
+      // Toggle analytics off (click to change from true to false)
+      await page.locator('#analytics-toggle').click();
+
+      // Save preferences
+      await page.locator('#cookie-modal-save').click();
+
+      // Verify consent changed
+      consent = await page.evaluate(() => JSON.parse(localStorage.getItem('cookie_consent')));
+      expect(consent.analytics).toBe(false);
     });
   });
 
@@ -455,18 +482,11 @@ test.describe('Cookie Consent Banner', () => {
       await expect(banner).toHaveClass(/invisible/);
     });
 
-    test('banner shows with smooth transition classes', async ({ page }) => {
+    test('banner shows with smooth transition classes on initial load', async ({ page }) => {
       await page.goto('/');
       await page.waitForLoadState('networkidle');
 
-      // Accept to hide banner
-      await page.locator('#cookie-accept').click();
-      await expect(page.locator('#cookie-banner')).toBeHidden();
-
-      // Re-open via Cookie Settings
-      await page.locator('#cookie-settings-link').click();
-
-      // Banner should be visible (no invisible class)
+      // Banner should be visible on first visit (no invisible class)
       const banner = page.locator('#cookie-banner');
       await expect(banner).toBeVisible();
       await expect(banner).not.toHaveClass(/invisible/);
