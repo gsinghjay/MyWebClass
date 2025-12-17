@@ -17,6 +17,25 @@
 
   <title>{{ title or 'MyWebClass.org' }}{{ ' | MyWebClass.org' if title }}</title>
 
+  {# GA4 Consent Mode v2 - Initialize BEFORE any gtag calls #}
+  <script>
+    // Initialize dataLayer and gtag function
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+
+    // Set default consent to denied BEFORE any analytics load
+    gtag('consent', 'default', {
+      'analytics_storage': 'denied',
+      'ad_storage': 'denied',
+      'ad_user_data': 'denied',
+      'ad_personalization': 'denied'
+    });
+
+    // GA4 Measurement ID - set to valid ID in production
+    // For development/testing, this can be set to 'G-0000000000' or left empty
+    window.GA4_MEASUREMENT_ID = '{{ env.GA4_MEASUREMENT_ID or "G-0000000000" }}';
+  </script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">

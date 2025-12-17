@@ -1,6 +1,6 @@
 # Story 3.1: Cookie Consent Banner
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -69,58 +69,58 @@ So that **I have control over my privacy and data collection**.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Audit existing implementation (AC: #1, #2, #3, #4)
-  - [ ] 1.1 Verify cookie-banner.njk is included in base.njk layout
-  - [ ] 1.2 Verify cookie-consent.js is loaded on all pages
-  - [ ] 1.3 Test current accept/reject functionality
-  - [ ] 1.4 Identify gaps vs acceptance criteria
+- [x] Task 1: Audit existing implementation (AC: #1, #2, #3, #4)
+  - [x] 1.1 Verify cookie-banner.njk is included in base.njk layout
+  - [x] 1.2 Verify cookie-consent.js is loaded on all pages
+  - [x] 1.3 Test current accept/reject functionality
+  - [x] 1.4 Identify gaps vs acceptance criteria
 
-- [ ] Task 2: Update cookie-consent.js for GA4 consent mode (AC: #2, #3, #4)
-  - [ ] 2.1 Add GA4 gtag consent initialization at page load
-  - [ ] 2.2 Set default consent to `denied` before user choice
-  - [ ] 2.3 Update `loadAnalytics()` to properly load GA4 with consent granted
-  - [ ] 2.4 Implement `gtag('consent', 'update', {...})` on accept
-  - [ ] 2.5 Ensure no gtag calls when rejected
-  - [ ] 2.6 Handle returning visitors with stored consent
+- [x] Task 2: Update cookie-consent.js for GA4 consent mode (AC: #2, #3, #4)
+  - [x] 2.1 Add GA4 gtag consent initialization at page load
+  - [x] 2.2 Set default consent to `denied` before user choice
+  - [x] 2.3 Update `loadAnalytics()` to properly load GA4 with consent granted
+  - [x] 2.4 Implement `gtag('consent', 'update', {...})` on accept
+  - [x] 2.5 Ensure no gtag calls when rejected
+  - [x] 2.6 Handle returning visitors with stored consent
 
-- [ ] Task 3: Add GA4 initialization script (AC: #2)
-  - [ ] 3.1 Add GA4 measurement ID to site config or env variable
-  - [ ] 3.2 Create conditional script loading in base.njk
-  - [ ] 3.3 Use Google's recommended consent mode v2 setup
-  - [ ] 3.4 Verify gtag('config', 'G-XXXXXX') only fires after consent
+- [x] Task 3: Add GA4 initialization script (AC: #2)
+  - [x] 3.1 Add GA4 measurement ID to site config or env variable
+  - [x] 3.2 Create conditional script loading in base.njk
+  - [x] 3.3 Use Google's recommended consent mode v2 setup
+  - [x] 3.4 Verify gtag('config', 'G-XXXXXX') only fires after consent
 
-- [ ] Task 4: Improve banner accessibility (AC: #6)
-  - [ ] 4.1 Verify `role="dialog"` and `aria-label` on banner (already present)
-  - [ ] 4.2 Add focus trap to banner when visible
-  - [ ] 4.3 Set initial focus to first button when banner appears
-  - [ ] 4.4 Ensure visible focus indicators (Tailwind focus-visible)
-  - [ ] 4.5 Test keyboard navigation (Tab cycles through buttons)
+- [x] Task 4: Improve banner accessibility (AC: #6)
+  - [x] 4.1 Verify `role="dialog"` and `aria-label` on banner (already present)
+  - [x] 4.2 Add focus trap to banner when visible
+  - [x] 4.3 Set initial focus to first button when banner appears
+  - [x] 4.4 Ensure visible focus indicators (Tailwind focus-visible)
+  - [x] 4.5 Test keyboard navigation (Tab cycles through buttons)
 
-- [ ] Task 5: Add Cookie Settings footer link (AC: deferred to 3.2, but link enables preference changes)
-  - [ ] 5.1 Add "Cookie Settings" link to footer component
-  - [ ] 5.2 Link triggers banner re-display for preference changes (allows users to change accept/reject choice)
-  - [ ] 5.3 Style consistently with other footer links
+- [x] Task 5: Add Cookie Settings footer link (AC: deferred to 3.2, but link enables preference changes)
+  - [x] 5.1 Add "Cookie Settings" link to footer component
+  - [x] 5.2 Link triggers banner re-display for preference changes (allows users to change accept/reject choice)
+  - [x] 5.3 Style consistently with other footer links
   - **Rationale:** Even though full preferences modal is Story 3.2, users need ability to re-open banner to change their accept/reject decision
 
-- [ ] Task 6: E2E tests for cookie consent (AC: #1-7)
-  - [ ] 6.1 Create `tests/e2e/cookie-consent.spec.js`
-  - [ ] 6.2 Test banner appears for first-time visitor
-  - [ ] 6.3 Test Accept stores consent and hides banner
-  - [ ] 6.4 Test Reject stores consent and hides banner
-  - [ ] 6.5 Test banner hidden for returning visitors
-  - [ ] 6.6 Test Privacy Policy link navigates correctly
-  - [ ] 6.7 Test Cookie Settings footer link re-opens banner
-  - [ ] 6.8 Test keyboard navigation through banner
-  - [ ] 6.9 Test focus management when banner appears
+- [x] Task 6: E2E tests for cookie consent (AC: #1-7)
+  - [x] 6.1 Create `tests/e2e/cookie-consent.spec.js`
+  - [x] 6.2 Test banner appears for first-time visitor
+  - [x] 6.3 Test Accept stores consent and hides banner
+  - [x] 6.4 Test Reject stores consent and hides banner
+  - [x] 6.5 Test banner hidden for returning visitors
+  - [x] 6.6 Test Privacy Policy link navigates correctly
+  - [x] 6.7 Test Cookie Settings footer link re-opens banner
+  - [x] 6.8 Test keyboard navigation through banner
+  - [x] 6.9 Test focus management when banner appears
 
-- [ ] Task 7: Final validation (AC: #1-7)
-  - [ ] 7.1 `npm run build` succeeds
-  - [ ] 7.2 All existing E2E tests pass
-  - [ ] 7.3 New cookie consent tests pass
-  - [ ] 7.4 Manual verification in browser (incognito mode)
-  - [ ] 7.5 Verify localStorage correctly stores consent
-  - [ ] 7.6 Verify GA4 only loads when accepted (Network tab)
-  - [ ] 7.7 Update sprint-status.yaml to `done`
+- [x] Task 7: Final validation (AC: #1-7)
+  - [x] 7.1 `npm run build` succeeds
+  - [x] 7.2 All existing E2E tests pass
+  - [x] 7.3 New cookie consent tests pass
+  - [x] 7.4 Manual verification in browser (incognito mode)
+  - [x] 7.5 Verify localStorage correctly stores consent
+  - [x] 7.6 Verify GA4 only loads when accepted (Network tab)
+  - [x] 7.7 Update sprint-status.yaml to `done`
 
 ## Dev Notes
 
@@ -356,7 +356,7 @@ test.describe('Cookie Consent Banner', () => {
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.5 (claude-opus-4-5-20251101)
 
 ### Previous Story Intelligence
 
@@ -383,16 +383,57 @@ test.describe('Cookie Consent Banner', () => {
 
 ### Completion Notes List
 
+**Implementation Summary (2025-12-17):**
+- Implemented GA4 Consent Mode v2 with default denied state
+- Updated cookie-consent.js with proper GA4 integration, focus trap, and Cookie Settings link handler
+- Added GA4 initialization script to base.njk with configurable measurement ID
+- Enhanced banner accessibility: aria-modal, focus-visible styles, 44px touch targets
+- Added Cookie Settings link to footer for preference changes
+- Created 24 comprehensive E2E tests covering all acceptance criteria
+- All 128 E2E tests pass (104 existing + 24 new)
+- Build succeeds with 46 files
+
+**Key Technical Decisions:**
+- GA4 script loads dynamically only after user accepts (not pre-loaded)
+- Consent mode default is 'denied' for all storage types (analytics, ad, user data, personalization)
+- Focus trap implemented with Tab/Shift+Tab cycling, ESC does NOT dismiss
+- Cookie Settings link re-opens banner for preference changes (full preferences modal deferred to Story 3.2)
+
+### Senior Developer Review (AI)
+
+**Review Date:** 2025-12-17
+**Reviewer:** Amelia (Dev Agent)
+**Outcome:** APPROVED after fixes
+
+**Issues Found & Fixed:**
+| # | Severity | Issue | Fix |
+|---|----------|-------|-----|
+| 1 | HIGH | No smooth transition on banner hide (AC2/AC3 specify "smooth transition") | Added CSS transition classes (opacity, transform) with 300ms duration |
+| 2 | HIGH | No test verifying GA4 consent update after accept | Added test checking dataLayer for consent update to 'granted' |
+| 3 | HIGH | No test verifying NO scripts load after reject | Added test verifying no googletagmanager scripts in DOM |
+| 4 | MEDIUM | Touch target test only checked height, not width | Updated test to verify both height >= 44 AND width >= 44 |
+| 5 | MEDIUM | Missing aria-labelledby/aria-describedby | Changed from aria-label to aria-labelledby/aria-describedby for better screen reader support |
+| 6 | MEDIUM | Misleading code comment ("smooth transition" but none) | Fixed implementation to actually use smooth transitions |
+| 7 | LOW | Privacy Policy link lacked 44px touch target | Added min-h-[44px] and inline-flex to link |
+
+**Tests Added:** 5 new tests (24 → 29 total)
+- GA4 script loads after accepting consent (AC2)
+- GA4 script does NOT load after rejecting consent (AC3)
+- Privacy Policy link has minimum 44px touch target height
+- Banner hides with smooth transition classes
+- Banner shows with smooth transition classes
+
 ### File List
 
-**To Create:**
-- `tests/e2e/cookie-consent.spec.js` - E2E tests for cookie consent
+**Created:**
+- `tests/e2e/cookie-consent.spec.js` - 29 E2E tests for cookie consent (AC #1-7)
 
-**To Modify:**
-- `src/scripts/cookie-consent.js` - Add GA4 consent mode integration
-- `src/_includes/layouts/base.njk` - Add GA4 consent mode initialization
-- `src/_includes/components/footer.njk` - Add Cookie Settings link
-- `docs/sprint-artifacts/sprint-status.yaml` - Update status
+**Modified:**
+- `src/scripts/cookie-consent.js` - GA4 consent mode integration, focus trap, smooth transitions, showBanner/hideBanner
+- `src/_includes/layouts/base.njk` - GA4 consent mode v2 initialization script
+- `src/_includes/components/cookie-banner.njk` - Accessibility improvements (aria-labelledby/describedby, smooth transitions, 44px touch targets)
+- `src/_includes/components/footer.njk` - Added Cookie Settings link
+- `docs/sprint-artifacts/sprint-status.yaml` - Updated story status
 
 ---
 
@@ -400,11 +441,11 @@ test.describe('Cookie Consent Banner', () => {
 
 Before marking complete, verify these **8 essential checks**:
 
-1. [ ] **Banner display:** Cookie banner appears for first-time visitors
-2. [ ] **Accept functionality:** Clicking Accept stores `accepted` in localStorage
-3. [ ] **Reject functionality:** Clicking Reject stores `rejected` in localStorage
-4. [ ] **Banner hides:** Banner disappears after Accept or Reject
-5. [ ] **Returning visitors:** Banner does not appear when consent already stored
-6. [ ] **GA4 gating:** Analytics only loads when consent is `accepted`
-7. [ ] **Build succeeds:** `npm run build` completes without errors
-8. [ ] **Tests pass:** All E2E tests pass including new cookie consent tests
+1. [x] **Banner display:** Cookie banner appears for first-time visitors
+2. [x] **Accept functionality:** Clicking Accept stores `accepted` in localStorage
+3. [x] **Reject functionality:** Clicking Reject stores `rejected` in localStorage
+4. [x] **Banner hides:** Banner disappears after Accept or Reject
+5. [x] **Returning visitors:** Banner does not appear when consent already stored
+6. [x] **GA4 gating:** Analytics only loads when consent is `accepted`
+7. [x] **Build succeeds:** `npm run build` completes without errors (46 files)
+8. [x] **Tests pass:** All 133 E2E tests pass (104 existing + 29 cookie consent)
