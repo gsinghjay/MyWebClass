@@ -131,6 +131,15 @@
     @apply absolute -top-10 left-0 bg-black text-white px-4 py-2 z-50 focus:top-0;
   }
 
+  /* Cookie toggle switch styles */
+  .cookie-toggle[aria-checked="true"] {
+    @apply bg-white;
+  }
+
+  .cookie-toggle[aria-checked="true"] .cookie-toggle-knob {
+    @apply translate-x-5 bg-black;
+  }
+
   .filter-scroll-container {
     @apply relative;
   }
