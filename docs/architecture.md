@@ -158,31 +158,33 @@ Sanity CMS → @11ty/eleventy-fetch (cached) → _data/*.js → Templates → St
 | Instructor Auth (MVP) | Sanity Studio native | No custom auth needed; instructors use Studio directly |
 | API Security | Environment variables | Sanity tokens, Make webhooks stored in env vars |
 | Form Security | Honeypot + validation | Client-side validation, hidden field for bot detection |
-| HTTPS | GitHub Pages default | Automatic SSL via GitHub |
+| HTTPS | Netlify default | Automatic SSL via Netlify |
 
 ### API & Communication Patterns
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
-| Form Submission | Make webhook endpoint | No-code, visual debugging, consolidates integrations |
-| Sanity Mutations | Via Make | Make receives form POST, creates Sanity document |
-| Discord Notifications | Via Make | Same flow triggers Discord webhook |
-| CRM Sync | Airtable via Make | Make copies submission data to Airtable |
+| Form Submission | Netlify Function | Serverless, same platform as hosting, no external dependencies |
+| Sanity Mutations | Via Netlify Function | Function receives form POST, creates Sanity document |
+| Discord Notifications | Via Netlify Function | Same function triggers Discord webhook (non-blocking) |
+| CRM Sync | Airtable via Netlify Function | Function copies submission data to Airtable (non-blocking) |
 
 **Integration Flow:**
 ```
 User submits form
        ↓
-Form POST → Make Webhook
+Form POST → Netlify Function (/.netlify/functions/submit-form)
        ↓
-Make Scenario:
-  1. Create Sanity document (status: pending)
-  2. Create Airtable record
-  3. Fire Discord webhook (#gallery-submissions)
+Netlify Function:
+  1. Create Sanity document (status: pending) [blocking]
+  2. Send Discord webhook (#gallery-submissions) [non-blocking]
+  3. Create Airtable record [non-blocking]
        ↓
-Sanity webhook → GitHub Actions
+Return success to user
        ↓
-Eleventy rebuild → GitHub Pages deploy
+Sanity webhook → Netlify Build Hook
+       ↓
+Eleventy rebuild → Netlify deploy
 ```
 
 ### Frontend Architecture
@@ -198,11 +200,15 @@ Eleventy rebuild → GitHub Pages deploy
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
-| Hosting | GitHub Pages | Free, simple, meets requirements |
-| CI/CD | GitHub Actions | Native integration, webhook support |
-| Build Triggers | Manual + Sanity webhook | Flexibility + automatic content updates |
+| Hosting | Netlify (Free Tier) | Built-in forms, functions, auto-deploy from Git |
+| CI/CD | Netlify Git Integration | Auto-deploy on push to main, preview deploys for PRs |
+| Build Triggers | Git push + Sanity webhook | Flexibility + automatic content updates |
 | Sanity Studio | Standalone /studio directory | Separate deploy or embedded in repo |
-| Environment Secrets | GitHub Secrets + Make | Sanity tokens, webhook URLs |
+| Environment Secrets | Netlify Environment Variables | Sanity tokens, webhook URLs, API keys |
+| Form Processing | Netlify Functions | Serverless function creates Sanity documents |
+
+**Netlify Site:** mywebclass-is373
+**Team:** New Jersey Institute of Technology
 
 ### Decision Impact Analysis
 
@@ -416,12 +422,16 @@ MyWebClass/
 ├── package-lock.json
 ├── postcss.config.js               # PostCSS configuration
 ├── tailwind.config.js              # Tailwind CSS configuration
+├── netlify.toml                    # Netlify build & function configuration
 ├── README.md
+│
+├── netlify/
+│   └── functions/
+│       └── submit-form.js          # Form submission handler (Sanity + Discord + Airtable)
 │
 ├── .github/
 │   └── workflows/
-│       ├── build.yml               # Main CI/CD workflow
-│       └── sanity-rebuild.yml      # Webhook-triggered rebuild
+│       └── ci.yml                  # CI checks (lint, test) - deploy handled by Netlify
 │
 ├── docs/                           # Project documentation
 │   ├── index.md                    # Documentation index
@@ -543,21 +553,32 @@ Instructors → studio.sanity.io/{project}
 | Integration | Trigger | Endpoint |
 |-------------|---------|----------|
 | Sanity → Eleventy | Build time | `https://{project}.api.sanity.io/...` |
-| Form → Make | User submit | `https://hook.make.com/{scenario}` |
-| Make → Sanity | Form received | Sanity Mutations API |
-| Make → Airtable | Form received | Airtable API |
-| Make → Discord | Form received | Discord Webhook URL |
-| Sanity → GitHub | Content change | `repository_dispatch` event |
+| Form → Netlify Function | User submit | `/.netlify/functions/submit-form` |
+| Netlify Function → Sanity | Form received | Sanity Mutations API |
+| Netlify Function → Airtable | Form received | Airtable API (non-blocking) |
+| Netlify Function → Discord | Form received | Discord Webhook URL (non-blocking) |
+| Sanity → Netlify | Content change | Netlify Build Hook URL |
 
 ### Environment Variables
 
 ```bash
-# .env.example
+# .env.example (also set in Netlify Dashboard → Site settings → Environment variables)
+
+# Sanity CMS (Required)
 SANITY_PROJECT_ID=your-project-id
 SANITY_DATASET=production
-SANITY_API_TOKEN=sk-...         # Read token for build
-MAKE_WEBHOOK_URL=https://hook.make.com/...
+SANITY_API_TOKEN=sk-...              # Write token for form submissions
+
+# Discord Notifications (Optional)
+DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
+
+# Airtable CRM (Optional)
+AIRTABLE_API_KEY=pat...
+AIRTABLE_BASE_ID=app...
+AIRTABLE_TABLE_NAME=Submissions
 ```
+
+**Note:** Sanity credentials are already configured. Discord and Airtable are optional - add when ready.
 
 ### File Organization Patterns
 
@@ -678,12 +699,13 @@ This architecture document is your complete guide for implementing is373-final. 
 
 **Development Sequence:**
 1. Initialize Sanity project and deploy schemas
-2. Set up environment variables (Sanity credentials)
+2. Set up environment variables (Sanity credentials) in Netlify Dashboard
 3. Create data fetching layer with eleventy-fetch
 4. Update templates to use Sanity data
-5. Configure Make scenario (form → Sanity → Discord → Airtable)
-6. Set up GitHub Actions webhook trigger
+5. Connect GitHub repo to Netlify (auto-deploy enabled)
+6. Configure Sanity webhook to trigger Netlify Build Hook
 7. Migrate mock data to Sanity
+8. Test form submission via Netlify Function
 
 ### Quality Assurance Checklist
 
