@@ -1,6 +1,6 @@
 # Story 4.6: Discord Webhook - New Submission Notification
 
-Status: review
+Status: done
 
 ## Story
 
