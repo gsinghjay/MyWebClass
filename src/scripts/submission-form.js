@@ -31,8 +31,9 @@
       return value.trim().length >= 50 || 'Please provide at least 50 characters explaining your design';
     },
     consent: (value, input) => {
-      return (input && input.checked) || 'You must agree to the terms';
-    }
+      return (input && input.checked) || 'You must consent to public display to submit';
+    },
+    marketing: () => true  // Optional field, no validation needed
   };
 
   /**
@@ -147,6 +148,12 @@
   const consentInput = document.getElementById('consent');
   if (consentInput) {
     consentInput.addEventListener('change', () => validateField('consent'));
+  }
+
+  // Marketing checkbox change listener (for consistent UX, though always valid)
+  const marketingInput = document.getElementById('marketing');
+  if (marketingInput) {
+    marketingInput.addEventListener('change', () => validateField('marketing'));
   }
 
   // Character counter for authenticity field

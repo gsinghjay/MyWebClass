@@ -89,7 +89,21 @@ permalink: /submit/
 
     {{ field.textarea('authenticity', 'Authenticity Explanation', 5, 'Explain how your demo authentically represents the design style. Reference specific typography, color, layout, and compositional choices...', true, 'Minimum 50 characters required') }}
 
-    {{ field.checkbox('consent', 'I confirm this is my original work and I consent to having it published on MyWebClass.org if approved. I agree to the <a href="' + ('/legal/terms/' | url) + '" class="underline">Terms of Service</a> and <a href="' + ('/legal/privacy/' | url) + '" class="underline">Privacy Policy</a>.', true) }}
+    <div class="space-y-4 pt-6 border-t border-neutral-200">
+      <p class="text-sm font-medium text-neutral-700">Consent & Preferences</p>
+
+      {{ field.checkbox('consent', 'I consent to my name and submission being displayed publicly on MyWebClass.org if approved. <a href="' + ('/legal/privacy/' | url) + '" class="underline">Privacy Policy</a>', true) }}
+
+      <div class="pl-0 text-xs text-neutral-500 -mt-2 mb-4">
+        <span class="text-swiss-red">*</span> Required to submit
+      </div>
+
+      {{ field.checkbox('marketing', 'I\'d like to receive updates, tips, and news about MyWebClass.org (optional)', false) }}
+
+      <p class="text-xs text-neutral-400 pl-0 -mt-2">
+        You can unsubscribe at any time. We never share your email.
+      </p>
+    </div>
 
     <button
       type="submit"
@@ -145,6 +159,11 @@ permalink: /submit/
             data[key] = value;
           }
         });
+
+        // Convert checkbox values to booleans
+        // Checkboxes in FormData have value "on" when checked, absent when unchecked
+        data.consent = formData.has('consent');
+        data.marketing = formData.has('marketing');
 
         // Disable submit button while processing
         const submitButton = form.querySelector('button[type="submit"]');

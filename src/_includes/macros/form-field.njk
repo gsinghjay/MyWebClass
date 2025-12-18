@@ -72,19 +72,19 @@
 {% endmacro %}
 
 {% macro checkbox(name, label, required=false) %}
-<div class="flex items-start gap-3">
+<label for="{{ name }}" class="flex items-start gap-3 cursor-pointer min-h-[44px] py-2">
   <input
     type="checkbox"
     id="{{ name }}"
     name="{{ name }}"
-    class="mt-1 min-w-[44px] min-h-[44px] w-6 h-6 cursor-pointer"
+    class="mt-0.5 w-5 h-5 cursor-pointer accent-swiss-red flex-shrink-0"
     {% if required %}required aria-required="true"{% endif %}
     aria-describedby="{{ name }}-error"
     aria-invalid="false"
   />
-  <label for="{{ name }}" class="text-sm text-neutral-600 cursor-pointer min-h-[44px] flex items-center">
+  <span class="text-sm text-neutral-600 leading-relaxed">
     {{ label | safe }}
-  </label>
-</div>
+  </span>
+</label>
 <p id="{{ name }}-error" class="form-error hidden mt-1" role="alert"></p>
 {% endmacro %}

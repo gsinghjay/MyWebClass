@@ -415,12 +415,12 @@ test.describe('Submission Form Page', () => {
     test('checkbox has minimum 44px touch target', async ({ page }) => {
       await page.setViewportSize({ width: 375, height: 667 });
 
-      const checkbox = page.locator('#consent');
-      const box = await checkbox.boundingBox();
+      // Touch target is on the label wrapper, not the checkbox input itself
+      const checkboxLabel = page.locator('label[for="consent"]');
+      const box = await checkboxLabel.boundingBox();
 
-      // Checkbox should have at least 44px height and width for touch accessibility
+      // Label wrapper should have at least 44px height for touch accessibility
       expect(box?.height).toBeGreaterThanOrEqual(44);
-      expect(box?.width).toBeGreaterThanOrEqual(44);
     });
   });
 
@@ -506,6 +506,224 @@ test.describe('Submission Form Page', () => {
     test('honeypot field exists for spam prevention', async ({ page }) => {
       const honeypot = page.locator('input[name="bot-field"]');
       await expect(honeypot).toBeAttached();
+    });
+  });
+
+  test.describe('Consent Checkboxes (Story 4.2)', () => {
+    test('public display consent checkbox is present and required', async ({ page }) => {
+      const consentCheckbox = page.locator('#consent');
+      await expect(consentCheckbox).toBeVisible();
+      await expect(consentCheckbox).toHaveAttribute('required', '');
+      await expect(consentCheckbox).toHaveAttribute('aria-required', 'true');
+    });
+
+    test('marketing checkbox is present and NOT checked by default', async ({ page }) => {
+      const marketingCheckbox = page.locator('#marketing');
+      await expect(marketingCheckbox).toBeVisible();
+      await expect(marketingCheckbox).not.toBeChecked();
+      await expect(marketingCheckbox).not.toHaveAttribute('required');
+    });
+
+    test('form submission fails without public display consent', async ({ page }) => {
+      // Wait for validation script to load
+      await page.waitForFunction(() => typeof window.validateSubmissionForm === 'function', { timeout: 5000 });
+
+      // Fill all fields except consent
+      await page.fill('#name', 'Test User');
+      await page.fill('#email', 'test@example.com');
+      await page.selectOption('#style', { index: 1 });
+      await page.fill('#demoUrl', 'https://example.com');
+      await page.fill('#authenticity', 'This is my authentic design explanation with more than fifty characters for the form.');
+
+      // Set screenshot
+      const buffer = Buffer.from('fake-image-content');
+      await page.locator('#screenshot').setInputFiles({
+        name: 'test.png',
+        mimeType: 'image/png',
+        buffer: buffer,
+      });
+
+      // Leave consent unchecked and submit
+      await page.click('button[type="submit"]');
+
+      await expect(page.locator('#consent-error')).toBeVisible();
+      await expect(page.locator('#consent-error')).toContainText('consent to public display');
+    });
+
+    test('form submission succeeds with consent but without marketing', async ({ page }) => {
+      // Wait for validation script to load
+      await page.waitForFunction(() => typeof window.validateSubmissionForm === 'function', { timeout: 5000 });
+
+      // Fill all required fields
+      await page.fill('#name', 'Test User');
+      await page.fill('#email', 'test@example.com');
+      await page.selectOption('#style', { index: 1 });
+      await page.fill('#demoUrl', 'https://example.com');
+      await page.fill('#authenticity', 'This is my authentic design explanation with more than fifty characters for the form.');
+
+      // Set screenshot
+      const buffer = Buffer.from('fake-image-content');
+      await page.locator('#screenshot').setInputFiles({
+        name: 'test.png',
+        mimeType: 'image/png',
+        buffer: buffer,
+      });
+
+      // Check consent, leave marketing unchecked
+      await page.check('#consent');
+
+      // Verify marketing is unchecked
+      await expect(page.locator('#marketing')).not.toBeChecked();
+
+      // Submit should not show consent error
+      await page.click('button[type="submit"]');
+      await expect(page.locator('#consent-error')).toBeHidden();
+    });
+
+    test('both checkboxes have 44px minimum touch targets', async ({ page }) => {
+      // Touch targets are on the label wrappers, not the checkbox inputs themselves
+      const consentLabel = await page.locator('label[for="consent"]').boundingBox();
+      const marketingLabel = await page.locator('label[for="marketing"]').boundingBox();
+
+      // Label wrappers should have at least 44px height for touch accessibility
+      expect(consentLabel?.height).toBeGreaterThanOrEqual(44);
+      expect(marketingLabel?.height).toBeGreaterThanOrEqual(44);
+    });
+
+    test('consent checkbox has visual separation from marketing', async ({ page }) => {
+      // Verify consent section exists with border-t
+      const consentSection = page.locator('.border-t.border-neutral-200');
+      await expect(consentSection).toBeVisible();
+    });
+
+    test('marketing checkbox shows (optional) indicator', async ({ page }) => {
+      const marketingLabel = page.locator('label[for="marketing"]');
+      await expect(marketingLabel).toContainText('optional');
+    });
+
+    test('focus moves to consent checkbox on validation error', async ({ page }) => {
+      // Wait for validation script to load
+      await page.waitForFunction(() => typeof window.validateSubmissionForm === 'function', { timeout: 5000 });
+
+      // Fill all fields except consent
+      await page.fill('#name', 'Test User');
+      await page.fill('#email', 'test@example.com');
+      await page.selectOption('#style', { index: 1 });
+      await page.fill('#demoUrl', 'https://example.com');
+      await page.fill('#authenticity', 'This is my authentic design explanation with more than fifty characters for the form.');
+
+      // Set screenshot
+      const buffer = Buffer.from('fake-image-content');
+      await page.locator('#screenshot').setInputFiles({
+        name: 'test.png',
+        mimeType: 'image/png',
+        buffer: buffer,
+      });
+
+      await page.click('button[type="submit"]');
+
+      // Consent should be focused
+      await expect(page.locator('#consent')).toBeFocused();
+    });
+
+    test('consent section has "Consent & Preferences" header', async ({ page }) => {
+      const header = page.locator('.border-t.border-neutral-200 .text-sm.font-medium');
+      await expect(header).toContainText('Consent & Preferences');
+    });
+
+    test('payload contains marketing: false when marketing unchecked (AC4)', async ({ page }) => {
+      // Wait for validation script to load
+      await page.waitForFunction(() => typeof window.validateSubmissionForm === 'function', { timeout: 5000 });
+
+      // Intercept the form submission request
+      let capturedPayload = null;
+      await page.route('**/.netlify/functions/submit-form', async (route) => {
+        const request = route.request();
+        capturedPayload = JSON.parse(request.postData() || '{}');
+        // Respond with success to complete the flow
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ success: true }),
+        });
+      });
+
+      // Fill all required fields
+      await page.fill('#name', 'Test User');
+      await page.fill('#email', 'test@example.com');
+      await page.selectOption('#style', { index: 1 });
+      await page.fill('#demoUrl', 'https://example.com');
+      await page.fill('#authenticity', 'This is my authentic design explanation with more than fifty characters for the form.');
+
+      // Set screenshot
+      const buffer = Buffer.from('fake-image-content');
+      await page.locator('#screenshot').setInputFiles({
+        name: 'test.png',
+        mimeType: 'image/png',
+        buffer: buffer,
+      });
+
+      // Check consent, leave marketing unchecked
+      await page.check('#consent');
+
+      // Submit form
+      await page.click('button[type="submit"]');
+
+      // Wait for request to be intercepted
+      await page.waitForTimeout(500);
+
+      // Verify payload contains correct boolean values
+      expect(capturedPayload).not.toBeNull();
+      expect(capturedPayload.consent).toBe(true);
+      expect(capturedPayload.marketing).toBe(false);
+    });
+
+    test('payload contains marketing: true when marketing checked (AC5)', async ({ page }) => {
+      // Wait for validation script to load
+      await page.waitForFunction(() => typeof window.validateSubmissionForm === 'function', { timeout: 5000 });
+
+      // Intercept the form submission request
+      let capturedPayload = null;
+      await page.route('**/.netlify/functions/submit-form', async (route) => {
+        const request = route.request();
+        capturedPayload = JSON.parse(request.postData() || '{}');
+        // Respond with success to complete the flow
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ success: true }),
+        });
+      });
+
+      // Fill all required fields
+      await page.fill('#name', 'Test User');
+      await page.fill('#email', 'test@example.com');
+      await page.selectOption('#style', { index: 1 });
+      await page.fill('#demoUrl', 'https://example.com');
+      await page.fill('#authenticity', 'This is my authentic design explanation with more than fifty characters for the form.');
+
+      // Set screenshot
+      const buffer = Buffer.from('fake-image-content');
+      await page.locator('#screenshot').setInputFiles({
+        name: 'test.png',
+        mimeType: 'image/png',
+        buffer: buffer,
+      });
+
+      // Check BOTH consent and marketing
+      await page.check('#consent');
+      await page.check('#marketing');
+
+      // Submit form
+      await page.click('button[type="submit"]');
+
+      // Wait for request to be intercepted
+      await page.waitForTimeout(500);
+
+      // Verify payload contains correct boolean values
+      expect(capturedPayload).not.toBeNull();
+      expect(capturedPayload.consent).toBe(true);
+      expect(capturedPayload.marketing).toBe(true);
     });
   });
 });
