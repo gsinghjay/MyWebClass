@@ -305,10 +305,12 @@ export async function handler(event) {
     const { result: sanityResult, styleName } = await createSanityDocument(submission, screenshotAssetId);
     console.log('Sanity document created:', sanityResult);
 
-    // Send Discord notification (non-blocking)
-    sendDiscordNotification(submission, styleName).catch(err =>
-      console.error('Discord notification failed:', err)
-    );
+    // Send Discord notification (awaited to ensure it completes before function ends)
+    try {
+      await sendDiscordNotification(submission, styleName);
+    } catch (err) {
+      console.error('Discord notification failed:', err);
+    }
 
     // Sync to Airtable (non-blocking)
     syncToAirtable(submission).catch(err =>
