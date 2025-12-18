@@ -2,7 +2,7 @@ name: Semantic Release
 
 on:
   push:
-    branches: [main]
+    branches: [main, staging]
   workflow_dispatch:
     inputs:
       force_release:
@@ -83,50 +83,6 @@ jobs:
       version: ${{ steps.release.outputs.version }}
       tag: ${{ steps.release.outputs.tag }}
 
-  # Optional: Trigger deployment after release
-  deploy-after-release:
-    name: Deploy Released Version
-    needs: release
-    if: needs.release.outputs.released == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.release.outputs.tag }}
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build site
-        run: npm run build
-        env:
-          SANITY_PROJECT_ID: ${{ secrets.SANITY_PROJECT_ID }}
-          SANITY_DATASET: ${{ secrets.SANITY_DATASET }}
-          SANITY_API_VERSION: ${{ secrets.SANITY_API_VERSION }}
-          SANITY_TOKEN: ${{ secrets.SANITY_TOKEN }}
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: 'public'
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+  # Note: Deployment is handled by Netlify
+  # Netlify auto-deploys when the release commit is pushed to main
+  # The release tag triggers a production deploy via Netlify's branch settings
