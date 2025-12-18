@@ -27,9 +27,37 @@ const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
 const AIRTABLE_TABLE_NAME = process.env.AIRTABLE_TABLE_NAME || 'Submissions';
 
 /**
+ * Upload image to Sanity assets
+ */
+async function uploadImageToSanity(base64Data, filename, mimeType) {
+  const url = `https://${SANITY_PROJECT_ID}.api.sanity.io/v2021-10-21/assets/images/${SANITY_DATASET}`;
+
+  // Convert base64 to buffer
+  // Buffer is globally available in Node.js Netlify Functions - no import needed
+  const buffer = Buffer.from(base64Data, 'base64');
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': mimeType || 'image/png',
+      'Authorization': `Bearer ${SANITY_API_TOKEN}`
+    },
+    body: buffer
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Sanity image upload failed: ${error}`);
+  }
+
+  const result = await response.json();
+  return result.document._id; // Returns asset reference ID
+}
+
+/**
  * Create a document in Sanity CMS
  */
-async function createSanityDocument(submission) {
+async function createSanityDocument(submission, screenshotAssetId) {
   const mutations = [{
     create: {
       _type: 'gallerySubmission',
@@ -45,7 +73,17 @@ async function createSanityDocument(submission) {
       hasMarketingConsent: submission.marketing === 'true' || submission.marketing === true,
       status: 'pending',
       submittedAt: new Date().toISOString(),
-      isFeatured: false
+      isFeatured: false,
+      // Add screenshot reference if uploaded
+      ...(screenshotAssetId && {
+        screenshot: {
+          _type: 'image',
+          asset: {
+            _type: 'reference',
+            _ref: screenshotAssetId
+          }
+        }
+      })
     }
   }];
 
@@ -237,8 +275,26 @@ export async function handler(event) {
       };
     }
 
+    // Upload screenshot if provided
+    let screenshotAssetId = null;
+    let screenshotUploadFailed = false;
+    if (submission.screenshot) {
+      try {
+        screenshotAssetId = await uploadImageToSanity(
+          submission.screenshot,
+          submission.screenshotFilename || 'screenshot.png',
+          submission.screenshotMimeType || 'image/png'
+        );
+        console.log('Screenshot uploaded:', screenshotAssetId);
+      } catch (error) {
+        console.error('Screenshot upload failed:', error);
+        screenshotUploadFailed = true;
+        // Continue without screenshot - don't fail entire submission
+      }
+    }
+
     // Create Sanity document (primary - must succeed)
-    const sanityResult = await createSanityDocument(submission);
+    const sanityResult = await createSanityDocument(submission, screenshotAssetId);
     console.log('Sanity document created:', sanityResult);
 
     // Send Discord notification (non-blocking)
@@ -258,7 +314,10 @@ export async function handler(event) {
       },
       body: JSON.stringify({
         success: true,
-        message: 'Submission received successfully'
+        message: 'Submission received successfully',
+        ...(screenshotUploadFailed && {
+          warning: 'Your screenshot could not be uploaded. Your submission was saved without the screenshot.'
+        })
       })
     };
 

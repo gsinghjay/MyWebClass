@@ -916,4 +916,335 @@ test.describe('Submission Form Page', () => {
       await expect(statusEl).toContainText('JPG, PNG, or WebP');
     });
   });
+
+  test.describe('Form Submission Flow (Story 4.4)', () => {
+    test('submit button shows loading state when clicked', async ({ page }) => {
+      // Intercept the form submission to delay response and observe loading state
+      let resolveRequest;
+      await page.route('**/.netlify/functions/submit-form', async (route) => {
+        // Wait for test to check loading state before responding
+        await new Promise(resolve => { resolveRequest = resolve; });
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ success: true }),
+        });
+      });
+
+      // Fill all required fields
+      await page.fill('#name', 'Test User');
+      await page.fill('#email', 'test@example.edu');
+      await page.selectOption('#style', { index: 1 });
+      await page.fill('#demoUrl', 'https://example.com/demo');
+      await page.setInputFiles('#screenshot', {
+        name: 'test.png',
+        mimeType: 'image/png',
+        buffer: Buffer.alloc(100)
+      });
+      await page.fill('#authenticity', 'A'.repeat(60));
+      await page.check('#consent');
+
+      // Start form submission
+      const submitButton = page.locator('button[type="submit"]');
+      await submitButton.click();
+
+      // Check loading state appears
+      await expect(submitButton).toBeDisabled();
+      await expect(submitButton).toContainText('Submitting');
+
+      // Resolve the request to complete the test
+      if (resolveRequest) resolveRequest();
+    });
+
+    test('submit button is disabled during submission', async ({ page }) => {
+      // Intercept the form submission to delay response
+      let resolveRequest;
+      await page.route('**/.netlify/functions/submit-form', async (route) => {
+        await new Promise(resolve => { resolveRequest = resolve; });
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ success: true }),
+        });
+      });
+
+      await page.fill('#name', 'Test User');
+      await page.fill('#email', 'test@example.edu');
+      await page.selectOption('#style', { index: 1 });
+      await page.fill('#demoUrl', 'https://example.com/demo');
+      await page.setInputFiles('#screenshot', {
+        name: 'test.png',
+        mimeType: 'image/png',
+        buffer: Buffer.alloc(100)
+      });
+      await page.fill('#authenticity', 'A'.repeat(60));
+      await page.check('#consent');
+
+      const submitButton = page.locator('button[type="submit"]');
+      await submitButton.click();
+
+      // Should be disabled during submission
+      await expect(submitButton).toBeDisabled();
+
+      // Resolve the request to complete the test
+      if (resolveRequest) resolveRequest();
+    });
+
+    test('error message container exists and is initially hidden', async ({ page }) => {
+      const errorEl = page.locator('#error-message');
+      await expect(errorEl).toBeHidden();
+    });
+
+    test('success message exists and is initially hidden', async ({ page }) => {
+      const successEl = page.locator('#success-message');
+      await expect(successEl).toBeHidden();
+    });
+
+    test('form data includes all required fields', async ({ page }) => {
+      // This test verifies the form structure has all fields
+      await expect(page.locator('#name')).toBeVisible();
+      await expect(page.locator('#email')).toBeVisible();
+      await expect(page.locator('#style')).toBeVisible();
+      await expect(page.locator('#demoUrl')).toBeVisible();
+      await expect(page.locator('#screenshot')).toBeAttached();
+      await expect(page.locator('#authenticity')).toBeVisible();
+      await expect(page.locator('#consent')).toBeVisible();
+      await expect(page.locator('#marketing')).toBeVisible();
+    });
+
+    test('form has honeypot field for spam prevention', async ({ page }) => {
+      const honeypot = page.locator('input[name="bot-field"]');
+      await expect(honeypot).toBeAttached();
+      // Should be hidden (hidden class is on the <p> element containing the label/input)
+      const hiddenContainer = page.locator('p.hidden input[name="bot-field"]');
+      await expect(hiddenContainer).toBeAttached();
+    });
+
+    test('error dismiss button hides error message', async ({ page }) => {
+      // Manually show error message for testing
+      await page.evaluate(() => {
+        const errorEl = document.getElementById('error-message');
+        if (errorEl) errorEl.classList.remove('hidden');
+      });
+
+      const errorEl = page.locator('#error-message');
+      await expect(errorEl).toBeVisible();
+
+      await page.click('#error-dismiss-btn');
+      await expect(errorEl).toBeHidden();
+    });
+
+    test('error message has proper accessibility attributes', async ({ page }) => {
+      const errorEl = page.locator('#error-message');
+      await expect(errorEl).toHaveAttribute('role', 'alert');
+    });
+
+    test('payload includes screenshot base64 data (AC2)', async ({ page }) => {
+      // Wait for validation script to load
+      await page.waitForFunction(() => typeof window.validateSubmissionForm === 'function', { timeout: 5000 });
+
+      // Intercept the form submission request
+      let capturedPayload = null;
+      await page.route('**/.netlify/functions/submit-form', async (route) => {
+        const request = route.request();
+        capturedPayload = JSON.parse(request.postData() || '{}');
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ success: true }),
+        });
+      });
+
+      // Fill all required fields
+      await page.fill('#name', 'Test User');
+      await page.fill('#email', 'test@example.com');
+      await page.selectOption('#style', { index: 1 });
+      await page.fill('#demoUrl', 'https://example.com');
+      await page.fill('#authenticity', 'This is my authentic design explanation with more than fifty characters for the form.');
+
+      // Set screenshot with actual content
+      const buffer = Buffer.from('fake-image-content-for-base64-test');
+      await page.locator('#screenshot').setInputFiles({
+        name: 'test-screenshot.png',
+        mimeType: 'image/png',
+        buffer: buffer,
+      });
+
+      await page.check('#consent');
+      await page.click('button[type="submit"]');
+
+      // Wait for request to be intercepted
+      await page.waitForTimeout(500);
+
+      // Verify payload contains screenshot fields
+      expect(capturedPayload).not.toBeNull();
+      expect(capturedPayload.screenshot).toBeTruthy();
+      expect(typeof capturedPayload.screenshot).toBe('string');
+      expect(capturedPayload.screenshotFilename).toBe('test-screenshot.png');
+      expect(capturedPayload.screenshotMimeType).toBe('image/png');
+    });
+
+    test('payload includes timestamp in ISO 8601 format (AC3)', async ({ page }) => {
+      // Wait for validation script to load
+      await page.waitForFunction(() => typeof window.validateSubmissionForm === 'function', { timeout: 5000 });
+
+      // Intercept the form submission request
+      let capturedPayload = null;
+      await page.route('**/.netlify/functions/submit-form', async (route) => {
+        const request = route.request();
+        capturedPayload = JSON.parse(request.postData() || '{}');
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ success: true }),
+        });
+      });
+
+      // Fill all required fields
+      await page.fill('#name', 'Test User');
+      await page.fill('#email', 'test@example.com');
+      await page.selectOption('#style', { index: 1 });
+      await page.fill('#demoUrl', 'https://example.com');
+      await page.fill('#authenticity', 'This is my authentic design explanation with more than fifty characters for the form.');
+
+      const buffer = Buffer.from('fake-image-content');
+      await page.locator('#screenshot').setInputFiles({
+        name: 'test.png',
+        mimeType: 'image/png',
+        buffer: buffer,
+      });
+
+      await page.check('#consent');
+      await page.click('button[type="submit"]');
+
+      // Wait for request to be intercepted
+      await page.waitForTimeout(500);
+
+      // Verify payload contains timestamp in ISO 8601 format
+      expect(capturedPayload).not.toBeNull();
+      expect(capturedPayload.timestamp).toBeTruthy();
+      // ISO 8601 format: YYYY-MM-DDTHH:mm:ss.sssZ
+      expect(capturedPayload.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/);
+    });
+
+    test('form is hidden after successful submission (AC4)', async ({ page }) => {
+      // Wait for validation script to load
+      await page.waitForFunction(() => typeof window.validateSubmissionForm === 'function', { timeout: 5000 });
+
+      // Intercept the form submission request
+      await page.route('**/.netlify/functions/submit-form', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ success: true }),
+        });
+      });
+
+      // Fill all required fields
+      await page.fill('#name', 'Test User');
+      await page.fill('#email', 'test@example.com');
+      await page.selectOption('#style', { index: 1 });
+      await page.fill('#demoUrl', 'https://example.com');
+      await page.fill('#authenticity', 'This is my authentic design explanation with more than fifty characters for the form.');
+
+      const buffer = Buffer.from('fake-image-content');
+      await page.locator('#screenshot').setInputFiles({
+        name: 'test.png',
+        mimeType: 'image/png',
+        buffer: buffer,
+      });
+
+      await page.check('#consent');
+
+      // Verify form is visible before submission
+      const form = page.locator('#submission-form');
+      await expect(form).toBeVisible();
+
+      await page.click('button[type="submit"]');
+
+      // Wait for submission to complete
+      await page.waitForTimeout(500);
+
+      // Verify form is hidden after successful submission
+      await expect(form).toBeHidden();
+    });
+
+    test('success message is visible after successful submission (AC4)', async ({ page }) => {
+      // Wait for validation script to load
+      await page.waitForFunction(() => typeof window.validateSubmissionForm === 'function', { timeout: 5000 });
+
+      // Intercept the form submission request
+      await page.route('**/.netlify/functions/submit-form', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ success: true }),
+        });
+      });
+
+      // Fill all required fields
+      await page.fill('#name', 'Test User');
+      await page.fill('#email', 'test@example.com');
+      await page.selectOption('#style', { index: 1 });
+      await page.fill('#demoUrl', 'https://example.com');
+      await page.fill('#authenticity', 'This is my authentic design explanation with more than fifty characters for the form.');
+
+      const buffer = Buffer.from('fake-image-content');
+      await page.locator('#screenshot').setInputFiles({
+        name: 'test.png',
+        mimeType: 'image/png',
+        buffer: buffer,
+      });
+
+      await page.check('#consent');
+      await page.click('button[type="submit"]');
+
+      // Wait for submission to complete
+      await page.waitForTimeout(500);
+
+      // Verify success message is visible with correct text
+      const successMessage = page.locator('#success-message');
+      await expect(successMessage).toBeVisible();
+      await expect(successMessage).toContainText('Thank you');
+      await expect(successMessage).toContainText('submission has been received');
+    });
+
+    test('page scrolls to success message after submission (AC4)', async ({ page }) => {
+      // Wait for validation script to load
+      await page.waitForFunction(() => typeof window.validateSubmissionForm === 'function', { timeout: 5000 });
+
+      // Intercept the form submission request
+      await page.route('**/.netlify/functions/submit-form', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ success: true }),
+        });
+      });
+
+      // Fill all required fields
+      await page.fill('#name', 'Test User');
+      await page.fill('#email', 'test@example.com');
+      await page.selectOption('#style', { index: 1 });
+      await page.fill('#demoUrl', 'https://example.com');
+      await page.fill('#authenticity', 'This is my authentic design explanation with more than fifty characters for the form.');
+
+      const buffer = Buffer.from('fake-image-content');
+      await page.locator('#screenshot').setInputFiles({
+        name: 'test.png',
+        mimeType: 'image/png',
+        buffer: buffer,
+      });
+
+      await page.check('#consent');
+      await page.click('button[type="submit"]');
+
+      // Wait for submission and scroll animation
+      await page.waitForTimeout(800);
+
+      // Verify success message is in viewport (scroll happened)
+      const successMessage = page.locator('#success-message');
+      await expect(successMessage).toBeInViewport();
+    });
+  });
 });
