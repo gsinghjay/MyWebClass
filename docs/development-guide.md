@@ -273,26 +273,50 @@ Output is in `public/` directory.
 
 ## Deployment
 
-### Netlify
+### Netlify (Required)
+
+This project **requires Netlify** for hosting because the submission form uses a Netlify Function to:
+- Upload screenshots to Sanity CDN
+- Create submission documents in Sanity CMS
+- Send Discord notifications
+- Sync to Airtable CRM
+
+GitHub Pages and Vercel cannot be used because they don't support our serverless function architecture.
+
+**Setup:**
 
 1. Connect repository to Netlify
 2. Configure build settings:
    - Build command: `npm run build`
    - Publish directory: `public`
-3. Set environment variables
-4. Deploy
-
-### Vercel
-
-1. Import project from GitHub
-2. Framework preset: Other
-3. Build command: `npm run build`
-4. Output directory: `public`
+   - Functions directory: `netlify/functions`
+3. Set environment variables in Netlify Dashboard:
+   - `SANITY_PROJECT_ID`
+   - `SANITY_DATASET`
+   - `SANITY_API_TOKEN` (write access)
+   - `DISCORD_WEBHOOK_URL` (optional)
+   - `AIRTABLE_API_KEY` (optional)
+   - `AIRTABLE_BASE_ID` (optional)
+4. Configure Sanity webhook to trigger Netlify Build Hook
 5. Deploy
 
-### GitHub Pages
+### Form Submission Flow
 
-The project includes `.github/workflows/ci.yml` for CI/CD.
+```
+User submits form
+       ↓
+POST to /.netlify/functions/submit-form
+       ↓
+Netlify Function:
+  1. Upload screenshot to Sanity CDN [blocking]
+  2. Create gallerySubmission document [blocking]
+  3. Send Discord notification [non-blocking]
+  4. Sync to Airtable [non-blocking]
+       ↓
+Return success/error to client
+```
+
+**Note:** We use Netlify Functions, NOT Netlify Forms. The `data-netlify="true"` attribute is a fallback only.
 
 ## Common Tasks
 
