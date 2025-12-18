@@ -57,9 +57,9 @@ _This document builds collaboratively through step-by-step discovery. Sections a
 
 **Target Integrations:**
 - Sanity CMS for content management AND instructor workflow (MVP)
-- GitHub Pages for static hosting
+- Netlify for static hosting + serverless functions (form processing)
 - Discord for community notifications
-- HubSpot/Airtable/Notion for CRM
+- Airtable for CRM
 - Google Analytics 4 with consent mode
 
 **Compliance Requirements:**
@@ -73,7 +73,7 @@ _This document builds collaboratively through step-by-step discovery. Sections a
 2. **Error Handling**: Integration failures (Discord, CRM) must not block core user flows
 3. **Performance Budget**: Static-first architecture with aggressive optimization targets
 4. **Accessibility**: Built into every component from the start
-5. **Build Pipeline**: Sanity webhook → GitHub Actions → Eleventy → GitHub Pages
+5. **Build Pipeline**: Sanity webhook → Netlify Build Hook → Eleventy → Netlify CDN
 
 ### MVP Scope Decisions
 
@@ -116,12 +116,23 @@ Sanity CMS → @11ty/eleventy-fetch (cached) → _data/*.js → Templates → St
 - Instructor workflow via Sanity Studio native interface (MVP)
 
 **Build Trigger:**
-- Sanity webhook → GitHub Actions → Eleventy rebuild → GitHub Pages deploy
+- Sanity webhook → Netlify Build Hook → Eleventy rebuild → Netlify deploy
 
 **Form Submissions:**
-- Serverless function receives form POST
-- Mutates Sanity dataset with `pending` status
-- Triggers Discord webhook notification
+- Netlify Function (`/.netlify/functions/submit-form`) receives form POST
+- Uploads screenshot to Sanity CDN (if provided)
+- Creates gallerySubmission document in Sanity with `pending` status
+- Sends Discord webhook notification (non-blocking)
+- Syncs to Airtable CRM (non-blocking)
+
+**Why Netlify (not GitHub Pages):**
+GitHub Pages is static-only and cannot execute server-side code. The submission flow requires:
+- Processing form data with validation
+- Uploading images to Sanity CDN
+- Creating documents in Sanity CMS via mutations API
+- Sending notifications to Discord
+
+Netlify provides serverless functions that run on form submission, eliminating the need for a separate backend service.
 
 ## Core Architectural Decisions
 
@@ -129,13 +140,13 @@ Sanity CMS → @11ty/eleventy-fetch (cached) → _data/*.js → Templates → St
 
 **Critical Decisions (Block Implementation):**
 - CMS Integration: Sanity with @11ty/eleventy-fetch
-- Form Handling: Make webhook endpoint
-- Build Pipeline: GitHub Actions with Sanity webhook trigger
+- Form Handling: Netlify Function with Sanity mutations
+- Build Pipeline: Netlify with Sanity webhook trigger
 
 **Important Decisions (Shape Architecture):**
 - Image Optimization: Sanity Image URL (CDN)
-- CRM: Airtable free tier
-- Notifications: Make/Zapier automation
+- CRM: Airtable (via Netlify Function)
+- Notifications: Discord webhook (via Netlify Function)
 
 **Deferred Decisions (Post-MVP):**
 - Custom instructor dashboard (using Sanity Studio for MVP)
@@ -216,14 +227,14 @@ Eleventy rebuild → Netlify deploy
 1. Sanity Studio setup with schemas
 2. Data fetching layer (eleventy-fetch + Sanity client)
 3. Template updates to use Sanity data
-4. Make scenarios (form → Sanity → Discord → Airtable)
-5. GitHub Actions webhook trigger
+4. Netlify Function for form submission (→ Sanity → Discord → Airtable)
+5. Sanity webhook → Netlify Build Hook trigger
 6. Data migration from mock data to Sanity
 
 **Cross-Component Dependencies:**
-- Make webhook URL needed before form can work
+- Sanity API token (write access) needed for form submissions
 - Sanity project ID/dataset needed for all data fetching
-- GitHub Actions workflow needs Sanity webhook secret
+- Netlify Build Hook URL needed for Sanity webhook
 
 ## Implementation Patterns & Consistency Rules
 
@@ -311,16 +322,19 @@ export default async function() {
 
 ### Communication Patterns
 
-**Make Webhook Payload (Form → Make):**
+**Form Submission Payload (Form → Netlify Function):**
 ```json
 {
   "name": "Alex Chen",
   "email": "alex@njit.edu",
-  "style": "swiss",
+  "style": "swiss-international-style",
   "demoUrl": "https://example.com/demo",
-  "explanation": "Grid-based layout with Helvetica...",
+  "authenticity": "Grid-based layout with Helvetica...",
   "consent": true,
   "marketing": false,
+  "screenshot": "data:image/png;base64,...",
+  "screenshotFilename": "screenshot.png",
+  "screenshotMimeType": "image/png",
   "timestamp": "2025-01-15T14:30:00Z"
 }
 ```
@@ -341,7 +355,7 @@ Demo: {demoUrl}
 | Form submission fails | Show error message, retain form data |
 | Missing image | Display style emoji/color block as fallback |
 | Empty gallery state | Show "No submissions yet" with CTA |
-| Make webhook fails | Make handles retries; form shows success |
+| Discord/Airtable fails | Non-blocking; logged but form shows success |
 
 **Template Consistency:**
 
@@ -431,7 +445,8 @@ MyWebClass/
 │
 ├── .github/
 │   └── workflows/
-│       └── ci.yml                  # CI checks (lint, test) - deploy handled by Netlify
+│       ├── ci.yml                  # CI/CD Pipeline (lint, build, test, Lighthouse)
+│       └── semantic-release.yml    # Automated versioning and releases
 │
 ├── docs/                           # Project documentation
 │   ├── index.md                    # Documentation index
@@ -461,17 +476,17 @@ MyWebClass/
 │   │       └── badge.njk           # Status badges
 │   │
 │   ├── pages/
-│   │   ├── index.njk               # Homepage
+│   │   ├── index.njk               # Homepage (featured + community galleries)
 │   │   ├── about.njk               # About page
-│   │   ├── submit.njk              # Submission form → Make webhook
-│   │   ├── admin.njk               # Dashboard (links to Sanity Studio)
+│   │   ├── submit.njk              # Submission form → Netlify Function
 │   │   ├── 404.njk                 # Not found
 │   │   ├── legal/
 │   │   │   ├── privacy.njk
 │   │   │   ├── terms.njk
 │   │   │   └── cookies.njk
+│   │   ├── styles-index.njk        # Design Style Gallery listing (/styles/)
 │   │   └── styles/
-│   │       └── style-detail.njk    # Paginated design style pages
+│   │       └── style-detail.njk    # Individual design style pages
 │   │
 │   ├── scripts/
 │   │   ├── cookie-consent.js       # Cookie banner logic
@@ -510,18 +525,20 @@ src/pages/*.njk (Templates)
        ↓ Build
 public/ (Static HTML)
        ↓ Deploy
-GitHub Pages (CDN)
+Netlify CDN
 ```
 
 **Form Submission Boundary:**
 ```
 src/pages/submit.njk (Form)
-       ↓ POST
-Make Webhook (External)
-       ↓ Scenario
-├── Sanity API (Create document)
-├── Airtable API (Create record)
-└── Discord API (Send notification)
+       ↓ POST (JSON payload with base64 screenshot)
+/.netlify/functions/submit-form (Serverless Function)
+       ↓
+├── Sanity API (Upload image + Create document) [blocking]
+├── Discord Webhook (Notification) [non-blocking]
+└── Airtable API (CRM record) [non-blocking]
+       ↓
+Return success/error to client
 ```
 
 **Admin Boundary:**
@@ -532,7 +549,7 @@ Instructors → studio.sanity.io/{project}
                      ↓
               Direct document editing
                      ↓
-              Webhook → GitHub Actions → Rebuild
+              Webhook → Netlify Build Hook → Rebuild & Deploy
 ```
 
 ### Requirements to Structure Mapping
@@ -540,24 +557,26 @@ Instructors → studio.sanity.io/{project}
 | PRD Requirement | Location |
 |-----------------|----------|
 | FR1-7: Design Gallery | `src/pages/index.njk`, `src/pages/styles/`, `src/_data/designStyles.js` |
-| FR8-16: Submission | `src/pages/submit.njk` → Make webhook |
+| FR8-16: Submission | `src/pages/submit.njk` → `netlify/functions/submit-form.js` |
 | FR17-24: Instructor Dashboard | Sanity Studio (`studio/`) |
 | FR25-28: Content Curation | Sanity Studio + `isFeatured` field |
 | FR29-35: Privacy/Consent | `src/scripts/cookie-consent.js`, `src/pages/legal/` |
-| FR36-40: Integrations | Make scenarios (external) |
+| FR36-40: Integrations | `netlify/functions/submit-form.js` (Discord, Airtable) |
 | FR41-45: CMS | `studio/schemas/`, `src/_data/` |
 | FR46-50: Accessibility | All templates, `src/styles/main.css` |
 
 ### Integration Points
 
-| Integration | Trigger | Endpoint |
-|-------------|---------|----------|
-| Sanity → Eleventy | Build time | `https://{project}.api.sanity.io/...` |
-| Form → Netlify Function | User submit | `/.netlify/functions/submit-form` |
-| Netlify Function → Sanity | Form received | Sanity Mutations API |
-| Netlify Function → Airtable | Form received | Airtable API (non-blocking) |
-| Netlify Function → Discord | Form received | Discord Webhook URL (non-blocking) |
-| Sanity → Netlify | Content change | Netlify Build Hook URL |
+| Integration | Trigger | Endpoint | Notes |
+|-------------|---------|----------|-------|
+| Sanity → Eleventy | Build time | `https://{project}.api.sanity.io/...` | GROQ queries via @11ty/eleventy-fetch |
+| Form → Netlify Function | User submit | `/.netlify/functions/submit-form` | JSON POST with base64 screenshot |
+| Netlify Function → Sanity | Form received | Sanity Assets + Mutations API | Blocking - must succeed |
+| Netlify Function → Discord | Form received | Discord Webhook URL | Non-blocking - failure logged only |
+| Netlify Function → Airtable | Form received | Airtable API | Non-blocking - failure logged only |
+| Sanity → Netlify | Content change | Netlify Build Hook URL | Triggers rebuild on content publish |
+
+**Note:** We use Netlify Functions (serverless), NOT Netlify Forms. The `data-netlify="true"` attribute on the form is a fallback only.
 
 ### Environment Variables
 
@@ -645,7 +664,7 @@ AIRTABLE_TABLE_NAME=Submissions
 
 **Key Strengths:**
 - Leverages existing brownfield codebase
-- No-code integrations reduce complexity (Make, Airtable)
+- Single platform (Netlify) for hosting + functions
 - Sanity Studio eliminates custom auth for MVP
 - Clear separation of concerns
 
@@ -694,8 +713,8 @@ This architecture document is your complete guide for implementing is373-final. 
 1. Initialize Sanity Studio in `/studio` directory
 2. Create Sanity schemas (designStyle, gallerySubmission, article, author)
 3. Set up data fetching layer (`src/_data/sanity.js`, `designStyles.js`)
-4. Configure Make webhook scenario
-5. Update form to POST to Make webhook
+4. Create Netlify Function for form submission
+5. Configure Sanity webhook to trigger Netlify Build Hook
 
 **Development Sequence:**
 1. Initialize Sanity project and deploy schemas
@@ -703,9 +722,10 @@ This architecture document is your complete guide for implementing is373-final. 
 3. Create data fetching layer with eleventy-fetch
 4. Update templates to use Sanity data
 5. Connect GitHub repo to Netlify (auto-deploy enabled)
-6. Configure Sanity webhook to trigger Netlify Build Hook
-7. Migrate mock data to Sanity
-8. Test form submission via Netlify Function
+6. Create Netlify Function (`netlify/functions/submit-form.js`)
+7. Configure Sanity webhook to trigger Netlify Build Hook
+8. Migrate mock data to Sanity
+9. Test form submission end-to-end
 
 ### Quality Assurance Checklist
 
