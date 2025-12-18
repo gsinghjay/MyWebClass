@@ -138,10 +138,12 @@ async function createSanityDocument(submission, screenshotAssetId) {
  * Send Discord notification
  */
 async function sendDiscordNotification(submission, styleName) {
+  console.log('Discord webhook check:', DISCORD_WEBHOOK_URL ? 'configured' : 'not configured');
   if (!DISCORD_WEBHOOK_URL) {
     console.log('Discord webhook not configured, skipping notification');
     return null;
   }
+  console.log('Sending Discord notification for:', submission.name, 'style:', styleName || submission.style);
 
   const message = {
     content: `🎨 **New Submission:** "${styleName || submission.style}" by ${submission.name}\nDemo: ${submission.demoUrl}`
@@ -156,6 +158,8 @@ async function sendDiscordNotification(submission, styleName) {
 
     if (!response.ok) {
       console.error('Discord notification failed:', response.status);
+    } else {
+      console.log('Discord notification sent successfully');
     }
     return response;
   } catch (error) {
