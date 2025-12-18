@@ -83,8 +83,8 @@ development_status:
   4-2-consent-checkboxes: done
   4-3-screenshot-upload-with-preview: done
   4-4-form-submission-to-make-webhook: done
-  4-5-make-scenario-create-sanity-document: backlog
-  4-6-discord-webhook-new-submission-notification: backlog
+  4-5-make-scenario-create-sanity-document: done
+  4-6-discord-webhook-new-submission-notification: review
   4-7-airtable-crm-sync: backlog
   4-8-email-validation-edu-encouragement: backlog
   epic-4-retrospective: optional

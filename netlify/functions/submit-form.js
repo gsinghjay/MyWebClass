@@ -58,6 +58,8 @@ async function uploadImageToSanity(base64Data, filename, mimeType) {
  * Create a document in Sanity CMS
  */
 async function createSanityDocument(submission, screenshotAssetId) {
+  let styleName = null;
+
   const mutations = [{
     create: {
       _type: 'gallerySubmission',
@@ -89,7 +91,7 @@ async function createSanityDocument(submission, screenshotAssetId) {
 
   // If we have a style slug instead of ID, we need to look it up first
   if (submission.style && !submission.styleId) {
-    const styleQuery = encodeURIComponent(`*[_type == "designStyle" && slug.current == "${submission.style}"][0]._id`);
+    const styleQuery = encodeURIComponent(`*[_type == "designStyle" && slug.current == "${submission.style}"][0]{_id, title}`);
     const styleUrl = `https://${SANITY_PROJECT_ID}.api.sanity.io/v2021-10-21/data/query/${SANITY_DATASET}?query=${styleQuery}`;
 
     try {
@@ -100,7 +102,8 @@ async function createSanityDocument(submission, screenshotAssetId) {
       });
       const styleData = await styleResponse.json();
       if (styleData.result) {
-        mutations[0].create.styleRef._ref = styleData.result;
+        styleName = styleData.result.title;
+        mutations[0].create.styleRef._ref = styleData.result._id;
       } else {
         // Style not found - remove the reference to avoid error
         delete mutations[0].create.styleRef;
@@ -127,7 +130,8 @@ async function createSanityDocument(submission, screenshotAssetId) {
     throw new Error(`Sanity mutation failed: ${error}`);
   }
 
-  return response.json();
+  const result = await response.json();
+  return { result, styleName };
 }
 
 /**
@@ -294,11 +298,11 @@ export async function handler(event) {
     }
 
     // Create Sanity document (primary - must succeed)
-    const sanityResult = await createSanityDocument(submission, screenshotAssetId);
+    const { result: sanityResult, styleName } = await createSanityDocument(submission, screenshotAssetId);
     console.log('Sanity document created:', sanityResult);
 
     // Send Discord notification (non-blocking)
-    sendDiscordNotification(submission).catch(err =>
+    sendDiscordNotification(submission, styleName).catch(err =>
       console.error('Discord notification failed:', err)
     );
 
