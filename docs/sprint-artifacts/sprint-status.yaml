@@ -92,9 +92,9 @@ development_status:
   # ============================================
   # Epic 5: Instructor Review & Curation
   # ============================================
-  epic-5: backlog
-  5-1-instructor-authentication-via-sanity-studio: backlog
-  5-2-view-pending-submissions-queue: backlog
+  epic-5: in-progress
+  5-1-instructor-authentication-via-sanity-studio: done
+  5-2-view-pending-submissions-queue: drafted
   5-3-view-submission-details: backlog
   5-4-approve-submission: backlog
   5-5-reject-submission-with-feedback: backlog

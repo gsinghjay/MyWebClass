@@ -3,10 +3,23 @@
 [![Netlify Status](https://api.netlify.com/api/v1/badges/0e579509-4d32-481b-943b-02e5e902fbc4/deploy-status)](https://app.netlify.com/projects/mywebclass-is373/deploys)
 [![CI/CD Pipeline](https://github.com/gsinghjay/MyWebClass/actions/workflows/ci.yml/badge.svg)](https://github.com/gsinghjay/MyWebClass/actions/workflows/ci.yml)
 [![Playwright E2E](https://img.shields.io/badge/E2E-Playwright-45ba4b?logo=playwright&logoColor=white)](https://github.com/gsinghjay/MyWebClass/actions/workflows/ci.yml)
-
-**Live Site:** https://mywebclass-is373.netlify.app/
+[![Eleventy](https://img.shields.io/badge/Eleventy-3.1.2-000?logo=eleventy&logoColor=white)](https://www.11ty.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4.18-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![Sanity CMS](https://img.shields.io/badge/Sanity-CMS-F03E2F?logo=sanity&logoColor=white)](https://www.sanity.io/)
+[![Node.js](https://img.shields.io/badge/Node.js-≥20.19-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![WCAG AA](https://img.shields.io/badge/Accessibility-WCAG_AA-blue)](https://www.w3.org/WAI/WCAG21/quickref/)
 
 A design education platform built with Eleventy, Nunjucks, Tailwind CSS, and Sanity CMS. Teaches design history through authentic, fully-implemented website demos.
+
+## Quick Links
+
+| Resource | URL |
+|----------|-----|
+| **Live Site** | <https://mywebclass-is373.netlify.app/> |
+| **Sanity Studio** | <https://mywebclass.sanity.studio/> |
+| **Netlify Dashboard** | <https://app.netlify.com/projects/mywebclass-is373/> |
+| **Sanity Management** | <https://www.sanity.io/manage/project/gc7vlywa> |
 
 ## Project Overview
 
@@ -16,7 +29,7 @@ MyWebClass.org showcases iconic design movements (Swiss International Style, Bau
 
 - **Static Site Generator**: Eleventy (11ty) v3.1.2
 - **Templating**: Nunjucks
-- **Styling**: Tailwind CSS v4
+- **Styling**: Tailwind CSS v3.4.18
 - **CMS**: Sanity (headless CMS)
 - **Hosting**: Netlify
 - **Design System**: Swiss International Style
@@ -49,13 +62,17 @@ project/
 
 ### Prerequisites
 
-- Node.js 18+ and npm
+- Node.js `>=20.19 <22` or `>=22.12` (required by Sanity)
+- npm
 
 ### Installation
 
 ```bash
 # Install dependencies
 npm install
+
+# Install Sanity Studio dependencies
+cd studio && npm install && cd ..
 
 # Start development server
 npm run dev
@@ -75,6 +92,36 @@ npm run build
 | `npm run test:e2e` | Run Playwright E2E tests |
 | `npm run test:e2e:ui` | Run Playwright with interactive UI |
 | `npm run test:e2e:headed` | Run Playwright in headed mode |
+| `npm run studio:dev` | Start Sanity Studio locally (http://localhost:3333) |
+| `npm run studio:build` | Build Sanity Studio for production |
+| `npm run studio:deploy` | Deploy Studio to sanity.studio |
+
+## Sanity CMS
+
+Content is managed through Sanity CMS with the following document types:
+
+| Schema | Description |
+|--------|-------------|
+| `designStyle` | Gallery entries with history, palette, typography |
+| `gallerySubmission` | Student submissions with status workflow |
+| `article` | Educational content |
+| `author` | Contributor profiles |
+
+### Accessing Sanity Studio
+
+**Cloud (Production):** <https://mywebclass.sanity.studio/>
+
+**Local Development:**
+```bash
+npm run studio:dev
+# Opens at http://localhost:3333
+```
+
+### Content Publishing Flow
+
+```
+Edit in Sanity → Publish → Webhook triggers → Netlify rebuilds → Live on site
+```
 
 ## Testing
 
@@ -129,7 +176,7 @@ Built following Swiss International Style principles:
 - Learn through authentic examples
 
 ### For Instructors
-- Review submitted demos
+- Review submitted demos via Sanity Studio
 - Approve/reject submissions
 - Manage gallery content
 
@@ -150,29 +197,20 @@ Built following Swiss International Style principles:
 - **About** (`/about/`) - Platform information
 - **Legal** - Privacy Policy, Terms of Service, Cookie Policy
 
-## Data Sources
-
-Currently using mock data in `src/_data/`. To integrate with Sanity CMS:
-
-1. Set up Sanity project
-2. Configure Sanity client in `src/_data/sanity.js`
-3. Update data files to fetch from Sanity
-4. Set environment variables for Sanity credentials
-
 ## Deployment
 
 This project is deployed on **Netlify** with automatic deploys on push to `main`.
 
-**Site:** https://mywebclass-is373.netlify.app/
+Content changes in Sanity automatically trigger rebuilds via webhook.
 
 ### Environment Variables (Netlify Dashboard)
 
 | Variable | Description |
 |----------|-------------|
-| `SANITY_PROJECT_ID` | Sanity project ID |
-| `SANITY_DATASET` | Sanity dataset name |
+| `SANITY_PROJECT_ID` | Sanity project ID (`gc7vlywa`) |
+| `SANITY_DATASET` | Sanity dataset name (`production`) |
 | `SANITY_API_TOKEN` | Sanity API token (write access) |
-| `DISCORD_WEBHOOK_URL` | (Optional) Discord notifications |
+| `DISCORD_WEBHOOK_URL` | Discord notifications webhook |
 | `AIRTABLE_API_KEY` | (Optional) Airtable CRM sync |
 
 ### Build Configuration
@@ -181,6 +219,19 @@ Build settings are in `netlify.toml`:
 - **Build command:** `npm install && NODE_ENV=production npx tailwindcss ... && npx eleventy`
 - **Publish directory:** `public`
 - **Functions:** `netlify/functions`
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+Please ensure:
+- Code follows existing style conventions
+- All tests pass (`npm test && npm run test:e2e`)
+- Lighthouse scores remain >90
 
 ## License
 

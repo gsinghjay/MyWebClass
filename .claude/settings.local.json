@@ -12,7 +12,8 @@
       "Bash(jq:*)",
       "Bash(cat:*)",
       "Bash(git push)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(curl:*)"
     ]
   }
 }
