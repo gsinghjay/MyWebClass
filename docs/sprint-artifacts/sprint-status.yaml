@@ -95,12 +95,23 @@ development_status:
   epic-5: in-progress
   5-1-instructor-authentication-via-sanity-studio: done
   5-2-view-pending-submissions-queue: drafted
-  5-3-view-submission-details: backlog
-  5-4-approve-submission: backlog
-  5-5-reject-submission-with-feedback: backlog
-  5-6-filter-submissions-by-status: backlog
-  5-7-mark-submission-as-featured: backlog
-  5-8-manage-featured-themes-order: backlog
+  5-3-view-submission-details: done  # Native Sanity Studio document view
+  5-4-approve-submission: done  # Status field change in Sanity Studio
+  5-5-reject-submission-with-feedback: done  # Status + feedbackNotes in Sanity Studio
+  5-6-filter-submissions-by-status: backlog  # Will be superseded by 5-2
+  5-7-mark-submission-as-featured: done  # isFeatured checkbox in Sanity Studio
+  5-8-manage-featured-themes-order: done  # featuredOrder field in Sanity Studio
   5-9-discord-notification-on-approval: backlog
-  5-10-admin-page-with-sanity-studio-link: backlog
+  5-10-admin-page-with-sanity-studio-link: superseded  # Removed custom admin page, using Sanity Studio directly
   epic-5-retrospective: optional
+
+# ============================================
+# Site Improvements (2025-12-18)
+# ============================================
+# - Removed redundant /admin/ page (Sanity Studio handles all instructor functions)
+# - Moved Design Style Gallery to dedicated /styles/ page
+# - Added "Styles" link to navigation
+# - Added Community Submissions section to style detail pages
+# - Fixed gallery card line-clamp for consistent 2-line heights
+# - Created migration scripts for demo URLs and submissions
+# - Added 6 demo submissions with screenshots (Skeuomorphism, Futurism, Glassmorphism, Retrofuturism, Cyberpunk, Isometric)
