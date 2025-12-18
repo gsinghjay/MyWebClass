@@ -4,10 +4,10 @@ import { buildQueryUrl } from "./sanity.mjs";
 const isDev = process.env.NODE_ENV !== 'production';
 
 export default async function() {
-  // Fetch approved submissions that are NOT featured (to avoid duplication with Featured Themes)
+  // Fetch all approved submissions (including featured ones)
   // Order by _createdAt desc (newest first) - using _createdAt as Sanity built-in field
   // Limit to 12 items for performance (pagination can be added later if needed)
-  const query = '*[_type == "gallerySubmission" && status == "approved" && isFeatured != true]{..., styleRef->} | order(_createdAt desc)[0...12]';
+  const query = '*[_type == "gallerySubmission" && status == "approved"]{..., styleRef->} | order(_createdAt desc)[0...12]';
   const url = buildQueryUrl(query);
 
   try {
