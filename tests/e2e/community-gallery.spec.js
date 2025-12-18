@@ -18,23 +18,19 @@ test.describe('Community Gallery Section', () => {
   test.describe('AC1: Community Gallery Section Display', () => {
     test('should display Community Gallery section after Gallery section when submissions exist', async ({ page }) => {
       const communitySection = page.locator('#community');
-      const gallerySection = page.locator('#gallery');
       const howItWorksSection = page.locator('#how-it-works');
 
-      // Gallery and How It Works should always exist
-      await expect(gallerySection).toBeVisible();
+      // How It Works should always exist on homepage
       await expect(howItWorksSection).toBeVisible();
 
       // If community section exists, verify positioning
       const communityCount = await communitySection.count();
       if (communityCount > 0) {
-        // Community should come after gallery and before how-it-works
-        const galleryBox = await gallerySection.boundingBox();
+        // Community should come before how-it-works
         const communityBox = await communitySection.boundingBox();
         const howItWorksBox = await howItWorksSection.boundingBox();
 
-        if (galleryBox && communityBox && howItWorksBox) {
-          expect(communityBox.y).toBeGreaterThan(galleryBox.y);
+        if (communityBox && howItWorksBox) {
           expect(communityBox.y).toBeLessThan(howItWorksBox.y);
         }
       }
@@ -294,11 +290,7 @@ test.describe('Community Gallery HTML Structure', () => {
   test('homepage should have proper section structure', async ({ page }) => {
     await page.goto('/');
 
-    // Gallery section should always exist
-    const gallerySection = page.locator('#gallery');
-    await expect(gallerySection).toBeVisible();
-
-    // How It Works section should always exist
+    // How It Works section should always exist on homepage
     const howItWorksSection = page.locator('#how-it-works');
     await expect(howItWorksSection).toBeVisible();
 
@@ -339,20 +331,18 @@ test.describe('Community Gallery - Data State Verification', () => {
   });
 
   test('page sections maintain correct order', async ({ page }) => {
-    // These sections should ALWAYS exist in order
-    const sections = ['#gallery', '#how-it-works'];
+    // How It Works should always exist on homepage
+    const howItWorks = page.locator('#how-it-works');
+    await expect(howItWorks).toBeVisible();
 
-    for (let i = 0; i < sections.length - 1; i++) {
-      const current = page.locator(sections[i]);
-      const next = page.locator(sections[i + 1]);
+    // If community exists, it should be before how-it-works
+    const community = page.locator('#community');
+    const communityExists = await community.count() > 0;
 
-      await expect(current).toBeVisible();
-      await expect(next).toBeVisible();
-
-      const currentBox = await current.boundingBox();
-      const nextBox = await next.boundingBox();
-
-      expect(currentBox.y).toBeLessThan(nextBox.y);
+    if (communityExists) {
+      const communityBox = await community.boundingBox();
+      const howItWorksBox = await howItWorks.boundingBox();
+      expect(communityBox.y).toBeLessThan(howItWorksBox.y);
     }
   });
 
@@ -361,12 +351,10 @@ test.describe('Community Gallery - Data State Verification', () => {
     const sectionExists = await communitySection.count() > 0;
 
     if (sectionExists) {
-      const galleryBox = await page.locator('#gallery').boundingBox();
       const communityBox = await communitySection.boundingBox();
       const howItWorksBox = await page.locator('#how-it-works').boundingBox();
 
-      // Community must be between gallery and how-it-works
-      expect(communityBox.y).toBeGreaterThan(galleryBox.y);
+      // Community must be before how-it-works
       expect(communityBox.y).toBeLessThan(howItWorksBox.y);
     }
   });
@@ -410,12 +398,13 @@ test.describe('Community Gallery - Keyboard Navigation', () => {
     const sectionExists = await communitySection.count() > 0;
 
     if (sectionExists) {
-      const viewDemoLinks = communitySection.locator('a[target="_blank"]');
-      const linkCount = await viewDemoLinks.count();
+      // Get all links in community section (includes style badges and View Demo buttons)
+      const allLinks = communitySection.locator('a');
+      const linkCount = await allLinks.count();
 
       if (linkCount >= 2) {
         // Focus first link
-        const firstLink = viewDemoLinks.first();
+        const firstLink = allLinks.first();
         await firstLink.focus();
         await expect(firstLink).toBeFocused();
 
@@ -423,7 +412,7 @@ test.describe('Community Gallery - Keyboard Navigation', () => {
         await page.keyboard.press('Tab');
 
         // Second link should now be focused
-        const secondLink = viewDemoLinks.nth(1);
+        const secondLink = allLinks.nth(1);
         await expect(secondLink).toBeFocused();
       }
     }

@@ -8,7 +8,8 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Gallery Filter', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/', { waitUntil: 'networkidle' });
+    // Gallery now lives at /styles/ page
+    await page.goto('/styles/', { waitUntil: 'networkidle' });
     // Wait for filter JavaScript to initialize (it sets aria-pressed on All button)
     await page.waitForFunction(() => {
       const allBtn = document.querySelector('.filter-btn[data-filter="all"]');
@@ -147,8 +148,8 @@ test.describe('Gallery Filter', () => {
 
   test.describe('AC4: URL-Based Filter State', () => {
     test('should apply filter from click and update URL', async ({ page }) => {
-      // Start on homepage with no filter
-      await page.goto('/', { waitUntil: 'networkidle' });
+      // Start on styles page with no filter
+      await page.goto('/styles/', { waitUntil: 'networkidle' });
       await expect(page).not.toHaveURL(/\?category=/);
 
       // Click minimalist filter
@@ -172,7 +173,7 @@ test.describe('Gallery Filter', () => {
 
     test('should preserve filter on page refresh', async ({ page }) => {
       // Navigate with filter param
-      await page.goto('/', { waitUntil: 'networkidle' });
+      await page.goto('/styles/', { waitUntil: 'networkidle' });
 
       // Click to apply filter first
       await page.click('.filter-btn[data-filter="minimalist"]');
@@ -191,8 +192,8 @@ test.describe('Gallery Filter', () => {
     });
 
     test('should handle browser back/forward navigation', async ({ page }) => {
-      // Start at home
-      await page.goto('/', { waitUntil: 'networkidle' });
+      // Start at styles page
+      await page.goto('/styles/', { waitUntil: 'networkidle' });
 
       // Apply first filter
       await page.click('.filter-btn[data-filter="digital"]');
@@ -239,7 +240,7 @@ test.describe('Gallery Filter', () => {
       // Disable JavaScript
       await page.route('**/*.js', route => route.abort());
 
-      await page.goto('/', { waitUntil: 'networkidle' });
+      await page.goto('/styles/', { waitUntil: 'networkidle' });
 
       // All gallery cards should be visible (none hidden)
       const cards = page.locator('.gallery-card');

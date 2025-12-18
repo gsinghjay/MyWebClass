@@ -42,20 +42,20 @@ test.describe('Featured Themes Section', () => {
   test.describe('AC1 & AC3: Featured Section Display', () => {
     test('featured section should appear between Stats Bar and Gallery when it exists', async ({ page }) => {
       const featuredSection = page.locator('#featured');
-      const gallerySection = page.locator('#gallery');
+      const howItWorksSection = page.locator('#how-it-works');
 
-      // Gallery should always exist
-      await expect(gallerySection).toBeVisible();
+      // How It Works should always exist on homepage
+      await expect(howItWorksSection).toBeVisible();
 
       // If featured section exists, verify positioning
       const featuredCount = await featuredSection.count();
       if (featuredCount > 0) {
-        // Featured should come before gallery in DOM order
+        // Featured should come before how-it-works in DOM order
         const featuredBox = await featuredSection.boundingBox();
-        const galleryBox = await gallerySection.boundingBox();
+        const howItWorksBox = await howItWorksSection.boundingBox();
 
-        if (featuredBox && galleryBox) {
-          expect(featuredBox.y).toBeLessThan(galleryBox.y);
+        if (featuredBox && howItWorksBox) {
+          expect(featuredBox.y).toBeLessThan(howItWorksBox.y);
         }
       }
     });
@@ -221,9 +221,9 @@ test.describe('Featured Section HTML Structure', () => {
     const statsSection = page.locator('section').filter({ has: page.locator('.grid.grid-cols-2') }).first();
     await expect(statsSection).toBeVisible();
 
-    // Gallery section should exist
-    const gallerySection = page.locator('#gallery');
-    await expect(gallerySection).toBeVisible();
+    // How It Works section should exist
+    const howItWorksSection = page.locator('#how-it-works');
+    await expect(howItWorksSection).toBeVisible();
 
     // Featured section conditional - may or may not exist
     const featuredSection = page.locator('#featured');

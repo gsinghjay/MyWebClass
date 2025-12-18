@@ -60,7 +60,8 @@ test.describe('Responsive Layout', () => {
 
     test('should show single column gallery', async ({ page }) => {
       await page.setViewportSize({ width: 375, height: 667 });
-      await page.goto('/', { waitUntil: 'networkidle' });
+      // Gallery moved to /styles/ page
+      await page.goto('/styles/', { waitUntil: 'networkidle' });
       const cards = await page.locator('#gallery .gallery-card').all();
       if (cards.length > 1) {
         const firstBox = await cards[0].boundingBox();
@@ -72,7 +73,8 @@ test.describe('Responsive Layout', () => {
 
     test('should have scrollable filter buttons', async ({ page }) => {
       await page.setViewportSize({ width: 375, height: 667 });
-      await page.goto('/', { waitUntil: 'networkidle' });
+      // Gallery filter moved to /styles/ page
+      await page.goto('/styles/', { waitUntil: 'networkidle' });
       const filterNav = page.locator('#filter-buttons');
       // Check that overflow-x allows scrolling (auto or scroll)
       const overflowX = await filterNav.evaluate(el => getComputedStyle(el).overflowX);
@@ -113,7 +115,8 @@ test.describe('Responsive Layout', () => {
 
     test('should show 2-column gallery', async ({ page }) => {
       await page.setViewportSize({ width: 768, height: 1024 });
-      await page.goto('/', { waitUntil: 'networkidle' });
+      // Gallery moved to /styles/ page
+      await page.goto('/styles/', { waitUntil: 'networkidle' });
       const cards = await page.locator('#gallery .gallery-card').all();
       if (cards.length >= 2) {
         const firstBox = await cards[0].boundingBox();
@@ -127,7 +130,8 @@ test.describe('Responsive Layout', () => {
   test.describe('Desktop (1280px)', () => {
     test('should show 3-column gallery', async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 800 });
-      await page.goto('/', { waitUntil: 'networkidle' });
+      // Gallery moved to /styles/ page
+      await page.goto('/styles/', { waitUntil: 'networkidle' });
       const cards = await page.locator('#gallery .gallery-card').all();
       if (cards.length >= 3) {
         const firstBox = await cards[0].boundingBox();
@@ -141,7 +145,8 @@ test.describe('Responsive Layout', () => {
 
     test('should wrap filter buttons', async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 800 });
-      await page.goto('/', { waitUntil: 'networkidle' });
+      // Gallery filter moved to /styles/ page
+      await page.goto('/styles/', { waitUntil: 'networkidle' });
       const filterNav = page.locator('#filter-buttons');
       await expect(filterNav).toHaveClass(/md:flex-wrap/);
     });
@@ -168,7 +173,8 @@ test.describe('Touch Targets', () => {
 
   test('should have minimum 44px touch targets for filter buttons', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto('/', { waitUntil: 'networkidle' });
+    // Gallery filter moved to /styles/ page
+    await page.goto('/styles/', { waitUntil: 'networkidle' });
     const filterButtons = page.locator('.filter-btn');
     const count = await filterButtons.count();
     for (let i = 0; i < count; i++) {
@@ -204,7 +210,8 @@ test.describe('Touch Targets', () => {
 
 test.describe('Image Lazy Loading', () => {
   test('should have lazy loading on gallery card images', async ({ page }) => {
-    await page.goto('/', { waitUntil: 'networkidle' });
+    // Gallery moved to /styles/ page
+    await page.goto('/styles/', { waitUntil: 'networkidle' });
     const images = page.locator('.gallery-card img, article.card img');
     const count = await images.count();
     for (let i = 0; i < count; i++) {
@@ -214,7 +221,8 @@ test.describe('Image Lazy Loading', () => {
   });
 
   test('should use Sanity CDN with width parameter', async ({ page }) => {
-    await page.goto('/', { waitUntil: 'networkidle' });
+    // Gallery moved to /styles/ page
+    await page.goto('/styles/', { waitUntil: 'networkidle' });
     const images = page.locator('.gallery-card img, article.card img');
     const count = await images.count();
     for (let i = 0; i < count; i++) {
