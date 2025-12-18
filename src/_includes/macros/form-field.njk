@@ -10,12 +10,15 @@
     name="{{ name }}"
     class="form-input"
     placeholder="{{ placeholder }}"
-    {% if required %}required{% endif %}
+    {% if required %}required aria-required="true"{% endif %}
+    aria-describedby="{% if helpText %}{{ name }}-helper {% endif %}{{ name }}-error"
+    aria-invalid="false"
     {% if type == 'email' %}autocomplete="email"{% endif %}
   />
   {% if helpText %}
-  <p class="form-helper">{{ helpText }}</p>
+  <p id="{{ name }}-helper" class="form-helper">{{ helpText }}</p>
   {% endif %}
+  <p id="{{ name }}-error" class="form-error hidden" role="alert"></p>
 </div>
 {% endmacro %}
 
@@ -29,7 +32,9 @@
     id="{{ name }}"
     name="{{ name }}"
     class="form-input bg-white"
-    {% if required %}required{% endif %}
+    {% if required %}required aria-required="true"{% endif %}
+    aria-describedby="{% if helpText %}{{ name }}-helper {% endif %}{{ name }}-error"
+    aria-invalid="false"
   >
     <option value="">Select {{ label | lower }}...</option>
     {% for option in options %}
@@ -37,8 +42,9 @@
     {% endfor %}
   </select>
   {% if helpText %}
-  <p class="form-helper">{{ helpText }}</p>
+  <p id="{{ name }}-helper" class="form-helper">{{ helpText }}</p>
   {% endif %}
+  <p id="{{ name }}-error" class="form-error hidden" role="alert"></p>
 </div>
 {% endmacro %}
 
@@ -54,11 +60,14 @@
     rows="{{ rows }}"
     class="form-input resize-none"
     placeholder="{{ placeholder }}"
-    {% if required %}required{% endif %}
+    {% if required %}required aria-required="true"{% endif %}
+    aria-describedby="{% if helpText %}{{ name }}-helper {% endif %}{{ name }}-error"
+    aria-invalid="false"
   ></textarea>
   {% if helpText %}
-  <p class="form-helper">{{ helpText }}</p>
+  <p id="{{ name }}-helper" class="form-helper">{{ helpText }}</p>
   {% endif %}
+  <p id="{{ name }}-error" class="form-error hidden" role="alert"></p>
 </div>
 {% endmacro %}
 
@@ -68,11 +77,14 @@
     type="checkbox"
     id="{{ name }}"
     name="{{ name }}"
-    class="mt-1 w-5 h-5"
-    {% if required %}required{% endif %}
+    class="mt-1 min-w-[44px] min-h-[44px] w-6 h-6 cursor-pointer"
+    {% if required %}required aria-required="true"{% endif %}
+    aria-describedby="{{ name }}-error"
+    aria-invalid="false"
   />
-  <label for="{{ name }}" class="text-sm text-neutral-600">
+  <label for="{{ name }}" class="text-sm text-neutral-600 cursor-pointer min-h-[44px] flex items-center">
     {{ label | safe }}
   </label>
 </div>
+<p id="{{ name }}-error" class="form-error hidden mt-1" role="alert"></p>
 {% endmacro %}

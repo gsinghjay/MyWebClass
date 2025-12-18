@@ -34,9 +34,12 @@ permalink: /submit/
     id="submission-form"
     class="space-y-6"
     method="POST"
+    action="/.netlify/functions/submit-form"
     netlify
+    data-netlify="true"
     netlify-honeypot="bot-field"
     name="demo-submission"
+    novalidate
   >
     {# Honeypot for spam prevention #}
     <p class="hidden">
@@ -48,14 +51,12 @@ permalink: /submit/
       {{ field.input('email', 'Email', 'email', 'you@email.com', true) }}
     </div>
 
-    {{ field.select('style', 'Design Style', [
-      { value: 'swiss', label: 'Swiss International Style' },
-      { value: 'bauhaus', label: 'Bauhaus' },
-      { value: 'brutalist', label: 'Brutalism' },
-      { value: 'flat', label: 'Flat Design' },
-      { value: 'minimalist', label: 'Minimalism' },
-      { value: 'other', label: 'Other (specify in description)' }
-    ], true) }}
+    {# Design styles populated from Sanity CMS #}
+    {% set styleOptions = [] %}
+    {% for style in designStyles.styles %}
+      {% set styleOptions = (styleOptions.push({ value: style.slug.current or style.slug, label: style.title }), styleOptions) %}
+    {% endfor %}
+    {{ field.select('style', 'Design Style', styleOptions, true, 'Select the design style your demo represents') }}
 
     {{ field.input('demoUrl', 'Demo URL', 'url', 'https://yourusername.github.io/demo', true, 'Must be a publicly accessible URL (GitHub Pages, Netlify, etc.)') }}
 
@@ -69,20 +70,24 @@ permalink: /submit/
           type="file"
           id="screenshot"
           name="screenshot"
-          accept="image/png,image/jpeg"
+          accept="image/png,image/jpeg,image/webp"
           required
+          aria-required="true"
+          aria-describedby="screenshot-helper screenshot-error"
+          aria-invalid="false"
           class="hidden"
         />
         <label for="screenshot" class="cursor-pointer">
           <span class="text-4xl block mb-2">📷</span>
-          <p class="text-sm text-neutral-500">Click to upload or drag and drop</p>
-          <p class="text-caption text-neutral-400 mt-1">PNG, JPG up to 5MB</p>
+          <p id="screenshot-helper" class="text-sm text-neutral-500">Click to upload or drag and drop</p>
+          <p class="text-caption text-neutral-400 mt-1">PNG, JPG, WebP up to 5MB</p>
         </label>
         <p id="file-name" class="text-sm text-neutral-600 mt-2 hidden"></p>
       </div>
+      <p id="screenshot-error" class="form-error hidden" role="alert"></p>
     </div>
 
-    {{ field.textarea('authenticity', 'Authenticity Explanation', 5, 'Explain how your demo authentically represents the design style. Reference specific typography, color, layout, and compositional choices...', true) }}
+    {{ field.textarea('authenticity', 'Authenticity Explanation', 5, 'Explain how your demo authentically represents the design style. Reference specific typography, color, layout, and compositional choices...', true, 'Minimum 50 characters required') }}
 
     {{ field.checkbox('consent', 'I confirm this is my original work and I consent to having it published on MyWebClass.org if approved. I agree to the <a href="' + ('/legal/terms/' | url) + '" class="underline">Terms of Service</a> and <a href="' + ('/legal/privacy/' | url) + '" class="underline">Privacy Policy</a>.', true) }}
 
@@ -95,27 +100,85 @@ permalink: /submit/
   </form>
 </div>
 
+<script src="{{ '/scripts/submission-form.js' | url }}" defer></script>
 <script>
-  // File upload preview
-  const fileInput = document.getElementById('screenshot');
-  const fileName = document.getElementById('file-name');
+  document.addEventListener('DOMContentLoaded', function() {
+    // File upload preview
+    const fileInput = document.getElementById('screenshot');
+    const fileName = document.getElementById('file-name');
 
-  fileInput.addEventListener('change', function(e) {
-    if (this.files && this.files[0]) {
-      fileName.textContent = 'Selected: ' + this.files[0].name;
-      fileName.classList.remove('hidden');
+    if (fileInput && fileName) {
+      fileInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+          fileName.textContent = 'Selected: ' + this.files[0].name;
+          fileName.classList.remove('hidden');
+        }
+      });
     }
-  });
 
-  // Form submission handler
-  const form = document.getElementById('submission-form');
-  const successMessage = document.getElementById('success-message');
+    // Form submission handler with validation and Netlify function
+    const form = document.getElementById('submission-form');
+    const successMessage = document.getElementById('success-message');
 
-  form.addEventListener('submit', function(e) {
-    // Netlify will handle the actual submission
-    setTimeout(function() {
-      form.classList.add('hidden');
-      successMessage.classList.remove('hidden');
-    }, 100);
+    if (form && successMessage) {
+      form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        // Validate form using the external validation script
+        const firstInvalidField = window.validateSubmissionForm ? window.validateSubmissionForm() : null;
+
+        if (firstInvalidField) {
+          // Focus the first invalid field
+          const invalidInput = document.getElementById(firstInvalidField);
+          if (invalidInput) {
+            invalidInput.focus();
+          }
+          return;
+        }
+
+        // Gather form data
+        const formData = new FormData(form);
+        const data = {};
+        formData.forEach((value, key) => {
+          // Skip file data for JSON submission (file handled separately or as base64)
+          if (key !== 'screenshot') {
+            data[key] = value;
+          }
+        });
+
+        // Disable submit button while processing
+        const submitButton = form.querySelector('button[type="submit"]');
+        if (submitButton) {
+          submitButton.disabled = true;
+          submitButton.textContent = 'Submitting...';
+        }
+
+        try {
+          const response = await fetch('/.netlify/functions/submit-form', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+
+          if (response.ok) {
+            form.classList.add('hidden');
+            successMessage.classList.remove('hidden');
+            successMessage.scrollIntoView({ behavior: 'smooth' });
+          } else {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || 'Submission failed');
+          }
+        } catch (error) {
+          console.error('Form submission error:', error);
+          alert('Something went wrong. Please try again.');
+
+          // Re-enable submit button
+          if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.textContent = 'Submit for Review';
+          }
+        }
+      });
+    }
   });
 </script>

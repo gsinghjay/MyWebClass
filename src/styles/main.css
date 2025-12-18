@@ -96,7 +96,18 @@
   }
 
   .form-error {
-    @apply text-xs text-red-600 mt-1;
+    @apply text-sm text-red-600 mt-1;
+  }
+
+  /* Form input error state - red border when invalid */
+  .form-input[aria-invalid="true"],
+  .form-input.error {
+    @apply border-red-600 focus:border-red-600 focus:ring-red-600/20;
+  }
+
+  /* Form input valid state - subtle green border when validated */
+  .form-input.valid {
+    @apply border-green-600;
   }
 
   .card {

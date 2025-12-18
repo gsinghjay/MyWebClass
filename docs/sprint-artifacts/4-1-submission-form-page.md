@@ -1,6 +1,6 @@
 # Story 4.1: Submission Form Page
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -99,32 +99,33 @@ so that **I can share my work for potential inclusion in the gallery**.
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Update Form Field Macros for Accessibility** (AC: 3, 9)
-  - [ ] MODIFY `src/_includes/macros/form-field.njk`:
+- [x] **Task 1: Update Form Field Macros for Accessibility** (AC: 3, 9)
+  - [x] MODIFY `src/_includes/macros/form-field.njk`:
     - Add `aria-required="true"` when `required=true`
     - Add `id` for error message container: `{{ name }}-error`
     - Add `aria-describedby="{{ name }}-helper {{ name }}-error"` to inputs
     - Add hidden error `<p>` element with `role="alert"`
-  - [ ] Update checkbox macro: increase touch target to min 44x44px
-  - [ ] Add `aria-invalid="false"` attribute (JS will toggle to true on error)
+  - [x] Update checkbox macro: increase touch target to min 44x44px
+  - [x] Add `aria-invalid="false"` attribute (JS will toggle to true on error)
 
-- [ ] **Task 2: Update Submit Page - Configure for Netlify Function** (AC: 1, 2, 4)
-  - [ ] MODIFY `src/pages/submit.njk`:
+- [x] **Task 2: Update Submit Page - Configure for Netlify Function** (AC: 1, 2, 4)
+  - [x] MODIFY `src/pages/submit.njk`:
     - KEEP `netlify` attribute (backup form capture)
     - KEEP `netlify-honeypot="bot-field"` (spam protection)
     - KEEP `id="submission-form"` and `method="POST"`
     - ADD `action="/.netlify/functions/submit-form"` to form
     - ADD `data-netlify="true"` for Netlify Forms backup
-  - [ ] REPLACE hardcoded style dropdown (lines 51-58) with Sanity data:
+    - ADD `novalidate` for JS-based validation
+  - [x] REPLACE hardcoded style dropdown (lines 51-58) with Sanity data:
     ```nunjucks
     {{ field.select('style', 'Design Style',
        designStyles.styles | map(style => { value: style.slug.current or style.slug, label: style.title }),
        true, 'Select the design style your demo represents') }}
     ```
-  - [ ] UPDATE screenshot input: `accept="image/png,image/jpeg,image/webp"`
+  - [x] UPDATE screenshot input: `accept="image/png,image/jpeg,image/webp"`
 
-- [ ] **Task 3: Implement Client-Side Validation** (AC: 5, 6, 7, 8)
-  - [ ] CREATE `src/scripts/submission-form.js` with:
+- [x] **Task 3: Implement Client-Side Validation** (AC: 5, 6, 7, 8)
+  - [x] CREATE `src/scripts/submission-form.js` with:
     - Required field validation for: name, email, style, demoUrl, screenshot, authenticity
     - Email format validation (regex: `/^[^\s@]+@[^\s@]+\.[^\s@]+$/`)
     - URL format validation (must start with `https://`)
@@ -135,11 +136,11 @@ so that **I can share my work for potential inclusion in the gallery**.
       - Adds error styling class
     - `clearError(fieldName)` function to reset state
     - Focus management: move focus to first error field on submit
-  - [ ] Add blur event listeners for real-time validation feedback
-  - [ ] Prevent form submission if validation fails
+  - [x] Add blur event listeners for real-time validation feedback
+  - [x] Prevent form submission if validation fails
 
-- [ ] **Task 4: Update Form JavaScript Integration** (AC: 5, 9)
-  - [ ] MODIFY inline `<script>` in submit.njk:
+- [x] **Task 4: Update Form JavaScript Integration** (AC: 5, 9)
+  - [x] MODIFY inline `<script>` in submit.njk:
     - KEEP file upload preview logic (lines 99-108)
     - REPLACE form submit handler with fetch to Netlify Function:
       ```javascript
@@ -168,23 +169,23 @@ so that **I can share my work for potential inclusion in the gallery**.
         }
       });
       ```
-  - [ ] ADD script include at end of file:
+  - [x] ADD script include at end of file:
     ```nunjucks
     <script src="{{ '/scripts/submission-form.js' | url }}" defer></script>
     ```
 
-- [ ] **Task 5: Style Error States** (AC: 3, 5, 10)
-  - [ ] ADD to `src/styles/main.css` or inline in macros:
+- [x] **Task 5: Style Error States** (AC: 3, 5, 10)
+  - [x] ADD to `src/styles/main.css` or inline in macros:
     - `.form-input.error` or `[aria-invalid="true"]`: red border (`border-swiss-red`)
     - `.form-error`: red text, `text-sm`, initially hidden
     - Valid state: subtle green border on blur if valid
-  - [ ] Ensure error text has sufficient contrast (4.5:1 minimum)
+  - [x] Ensure error text has sufficient contrast (4.5:1 minimum)
 
-- [ ] **Task 6: Verify Responsive Layout & Touch Targets** (AC: 10)
-  - [ ] Verify form container max-width and padding
-  - [ ] Verify single-column stack on mobile (<640px)
-  - [ ] Verify all buttons/inputs have min 44x44px touch target
-  - [ ] Test checkbox label tap area covers full row
+- [x] **Task 6: Verify Responsive Layout & Touch Targets** (AC: 10)
+  - [x] Verify form container max-width and padding
+  - [x] Verify single-column stack on mobile (<640px)
+  - [x] Verify all buttons/inputs have min 44x44px touch target
+  - [x] Test checkbox label tap area covers full row
 
 ## Dev Notes
 
@@ -335,15 +336,21 @@ form.addEventListener('submit', (e) => {
 
 ### Agent Model Used
 
-(To be filled by dev agent)
+Claude Opus 4.5 (claude-opus-4-5-20251101)
 
 ### Debug Log References
 
-(To be filled during implementation)
+- Identified HTML5 native validation blocking JS validation submit handler - resolved by adding `novalidate` attribute to form
+- All 48 E2E tests pass after code review fixes (character counter, file size validation, valid state styling)
 
 ### Completion Notes List
 
-(To be filled during implementation)
+- **Task 1:** Updated all form field macros (input, select, textarea, checkbox) with ARIA attributes: `aria-required`, `aria-describedby`, `aria-invalid`, and error containers with `role="alert"`
+- **Task 2:** Configured form for Netlify Function submission with `action`, `data-netlify`, and `novalidate` attributes; replaced hardcoded styles with Sanity data (34 design styles); added WebP support
+- **Task 3:** Created comprehensive client-side validation with validators for all required fields, email format, URL format, and minimum character count; includes real-time blur validation and character counter
+- **Task 4:** Updated inline script with async submit handler that calls validation and posts to Netlify Function; includes loading state and error handling
+- **Task 5:** Added CSS error states for invalid inputs (red border via `[aria-invalid="true"]`) and valid inputs (green border)
+- **Task 6:** Verified responsive layout and touch targets (44px minimum) via E2E tests
 
 ### Change Log
 
@@ -351,7 +358,39 @@ form.addEventListener('submit', (e) => {
 |------|--------|--------|
 | 2025-12-17 | Story created with comprehensive context | SM Agent (Bob) |
 | 2025-12-17 | Validated and improved with existing code context | SM Agent (Bob) |
+| 2025-12-17 | Implemented all 6 tasks, 42 E2E tests added | Dev Agent (Amelia) |
+| 2025-12-17 | Code review: Found 5 issues, fixed all, 48 E2E tests now | Dev Agent (Amelia) |
+
+### Senior Developer Review (AI)
+
+**Review Date:** 2025-12-17
+**Outcome:** APPROVED (after fixes)
+
+**Issues Found & Fixed:**
+
+| # | Severity | Issue | Resolution |
+|---|----------|-------|------------|
+| 1 | HIGH | Character counter broken - helper element not rendered | Added helpText param to authenticity textarea |
+| 2 | HIGH | No file size validation for screenshot | Added 5MB size check in validator |
+| 3 | MEDIUM | Valid state CSS never applied by JS | Added `.valid` class in clearError function |
+| 4 | MEDIUM | Checkbox touch target not verified | Added E2E test - confirmed 44px target works |
+| 5 | MEDIUM | No E2E test for character counter | Added 2 tests for counter functionality |
+
+**Tests Added:**
+- `character counter shows remaining characters needed`
+- `character counter shows count when minimum met`
+- `checkbox has minimum 44px touch target`
+- `shows error for file over 5MB`
+- `accepts file under 5MB`
+- `applies valid styling after successful validation`
 
 ### File List
 
-(To be filled during implementation)
+**Modified:**
+- `src/_includes/macros/form-field.njk` - Added ARIA attributes and error containers
+- `src/pages/submit.njk` - Configured form for Netlify Function, Sanity dropdown, novalidate
+- `src/styles/main.css` - Added error/valid state styling for form inputs
+
+**Created:**
+- `src/scripts/submission-form.js` - Client-side validation logic
+- `tests/e2e/submission-form.spec.js` - 42 E2E tests covering all ACs
