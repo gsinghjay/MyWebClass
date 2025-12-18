@@ -24,8 +24,8 @@ permalink: /
           become practice.
         </p>
         <div class="flex flex-col sm:flex-row gap-4">
-          <a href="#gallery" class="btn btn-primary bg-white text-black hover:bg-neutral-200">
-            Explore Gallery
+          <a href="{{ '/styles/' | url }}" class="btn btn-primary bg-white text-black hover:bg-neutral-200">
+            Browse Styles
           </a>
           <a href="{{ '/submit/' | url }}" class="btn btn-secondary border-white text-white hover:bg-white hover:text-black">
             Submit Your Demo
@@ -85,59 +85,17 @@ permalink: /
 </section>
 {% endif %}
 
-{# Gallery Section #}
-<section id="gallery" class="section-padding">
-  <div class="container-custom">
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6">
-      <div>
-        <span class="text-overline text-neutral-400">Browse</span>
-        <h2 class="text-h2 mt-2">Design Style Gallery</h2>
-      </div>
-    </div>
-
-    {# Filter buttons - mobile scrollable, desktop wrapped #}
-    <div class="filter-scroll-container">
-      <nav
-        id="filter-buttons"
-        class="flex gap-2 overflow-x-auto pb-4 mb-8 -mx-4 px-4 md:mx-0 md:px-0 md:flex-wrap md:overflow-visible"
-        role="group"
-        aria-label="Filter gallery by design style category"
-      >
-        <button
-          type="button"
-          class="filter-btn px-4 py-2 border-2 border-black text-sm font-medium transition-colors bg-black text-white whitespace-nowrap"
-          data-filter="all"
-          aria-pressed="true"
-        >All Styles</button>
-        {% for category in designStyles.categories %}
-        <button
-          type="button"
-          class="filter-btn px-4 py-2 border-2 border-black text-sm font-medium transition-colors bg-white text-black hover:bg-neutral-100 whitespace-nowrap"
-          data-filter="{{ category }}"
-          aria-pressed="false"
-        >{{ category | replace('-', ' ') | title }}</button>
-        {% endfor %}
-      </nav>
-    </div>
-
-    {% if designStyles.styles.length %}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {% for style in designStyles.styles %}
-        <a
-          href="{{ '/styles/' | url }}{{ style.slug.current or style.slug }}/"
-          class="block gallery-card"
-          data-category="{{ style.category or 'uncategorized' }}"
-        >
-          {{ cards.galleryCard(style) }}
-        </a>
-      {% endfor %}
-    </div>
-    {% else %}
-    <div class="text-center py-16 border-2 border-dashed border-neutral-300">
-      <p class="text-xl text-neutral-500 mb-4">No design styles available yet.</p>
-      <p class="text-neutral-400">Check back soon for our curated collection.</p>
-    </div>
-    {% endif %}
+{# Design Styles CTA #}
+<section class="bg-neutral-100 section-padding border-b-2 border-black">
+  <div class="container-custom text-center">
+    <span class="text-overline text-neutral-400">Looking for inspiration?</span>
+    <h2 class="text-h2 mt-2 mb-4">Explore Our Design Style Gallery</h2>
+    <p class="text-neutral-500 mb-8 max-w-xl mx-auto">
+      Browse {{ designStyles.styles.length }} iconic design movements and find one to implement. From Swiss modernism to digital brutalism — pick a style that speaks to you.
+    </p>
+    <a href="{{ '/styles/' | url }}" class="btn btn-primary inline-block">
+      Browse All Styles
+    </a>
   </div>
 </section>
 
@@ -199,6 +157,3 @@ permalink: /
   </div>
 </section>
 
-{% block scripts %}
-<script src="{{ '/scripts/gallery-filter.js' | url }}" defer></script>
-{% endblock %}

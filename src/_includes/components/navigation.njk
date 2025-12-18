@@ -15,7 +15,10 @@
 
       <div class="hidden md:flex items-center gap-8">
         <a href="{{ '/' | url }}" class="text-sm font-medium text-neutral-500 hover:text-black transition-colors {% if page.url == '/' %}text-black{% endif %}">
-          Gallery
+          Home
+        </a>
+        <a href="{{ '/styles/' | url }}" class="text-sm font-medium text-neutral-500 hover:text-black transition-colors {% if '/styles/' in page.url %}text-black{% endif %}">
+          Styles
         </a>
         <a href="{{ '/articles/' | url }}" class="text-sm font-medium text-neutral-500 hover:text-black transition-colors {% if '/articles/' in page.url %}text-black{% endif %}">
           Articles
@@ -47,7 +50,10 @@
     <div id="mobile-menu" class="hidden md:hidden border-t-2 border-black">
       <div class="py-4 space-y-2">
         <a href="{{ '/' | url }}" class="block text-sm font-medium text-neutral-500 hover:text-black transition-colors py-2 min-h-[44px] flex items-center">
-          Gallery
+          Home
+        </a>
+        <a href="{{ '/styles/' | url }}" class="block text-sm font-medium text-neutral-500 hover:text-black transition-colors py-2 min-h-[44px] flex items-center">
+          Styles
         </a>
         <a href="{{ '/articles/' | url }}" class="block text-sm font-medium text-neutral-500 hover:text-black transition-colors py-2 min-h-[44px] flex items-center">
           Articles

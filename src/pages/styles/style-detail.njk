@@ -12,8 +12,8 @@ layout: layouts/base.njk
 
 {# Back Navigation #}
 <div class="container-custom py-4">
-  <a href="{{ '/' | url }}" class="text-sm text-neutral-500 hover:text-black inline-flex items-center gap-2">
-    ← Back to Gallery
+  <a href="{{ '/styles/' | url }}" class="text-sm text-neutral-500 hover:text-black inline-flex items-center gap-2">
+    ← Back to Styles
   </a>
 </div>
 
@@ -221,6 +221,36 @@ layout: layouts/base.njk
         <span class="text-sm text-neutral-500">by {{ article.author.name }}</span>
         {% endif %}
       </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{# Community Submissions Section - Show submissions for this style #}
+{% import "macros/card.njk" as cards with context %}
+{% set styleSubmissions = [] %}
+{% for submission in communitySubmissions %}
+  {% if submission.styleRef and submission.styleRef._id == style._id %}
+    {% set styleSubmissions = (styleSubmissions.push(submission), styleSubmissions) %}
+  {% endif %}
+{% endfor %}
+
+{% if styleSubmissions.length %}
+<section class="border-t-2 border-black section-padding">
+  <div class="container-custom">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
+      <div>
+        <span class="text-overline text-neutral-400">Student Work</span>
+        <h2 class="text-h3 mt-2">Community Submissions</h2>
+      </div>
+      <p class="text-neutral-500 text-sm">
+        {{ styleSubmissions.length }} submission{% if styleSubmissions.length != 1 %}s{% endif %} for this style
+      </p>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for submission in styleSubmissions %}
+        {{ cards.submissionCard(submission) }}
       {% endfor %}
     </div>
   </div>
