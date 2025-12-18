@@ -20,6 +20,10 @@
         return 'Screenshot is required';
       }
       const file = input.files[0];
+      const allowedTypes = ['image/png', 'image/jpeg', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        return 'Please upload a JPG, PNG, or WebP image';
+      }
       const maxSizeBytes = 5 * 1024 * 1024; // 5MB
       if (file.size > maxSizeBytes) {
         return 'Screenshot must be less than 5MB';

@@ -65,26 +65,61 @@ permalink: /submit/
       <label for="screenshot" class="form-label">
         Screenshot <span class="text-swiss-red">*</span>
       </label>
-      <div class="border-2 border-dashed border-black p-8 text-center cursor-pointer hover:bg-neutral-50 transition-colors">
-        <input
-          type="file"
-          id="screenshot"
-          name="screenshot"
-          accept="image/png,image/jpeg,image/webp"
-          required
-          aria-required="true"
-          aria-describedby="screenshot-helper screenshot-error"
-          aria-invalid="false"
-          class="hidden"
-        />
-        <label for="screenshot" class="cursor-pointer">
-          <span class="text-4xl block mb-2">📷</span>
-          <p id="screenshot-helper" class="text-sm text-neutral-500">Click to upload or drag and drop</p>
-          <p class="text-caption text-neutral-400 mt-1">PNG, JPG, WebP up to 5MB</p>
-        </label>
-        <p id="file-name" class="text-sm text-neutral-600 mt-2 hidden"></p>
+
+      {# Upload Container - toggles between upload state and preview state #}
+      <div
+        id="screenshot-upload-container"
+        class="relative border-2 border-dashed border-black p-8 text-center transition-colors focus-within:border-swiss-red hover:border-swiss-red"
+        role="group"
+        aria-labelledby="screenshot-upload-label"
+      >
+        {# Upload State (shown when no file selected) #}
+        <div id="screenshot-upload-state">
+          <input
+            type="file"
+            id="screenshot"
+            name="screenshot"
+            accept="image/png,image/jpeg,image/webp"
+            required
+            aria-required="true"
+            aria-describedby="screenshot-helper screenshot-error"
+            aria-invalid="false"
+            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+          />
+          <div id="screenshot-upload-label" class="pointer-events-none">
+            <span class="text-4xl block mb-2" aria-hidden="true">📷</span>
+            <p id="screenshot-helper" class="text-sm text-neutral-500">Click to upload or drag and drop</p>
+            <p class="text-caption text-neutral-400 mt-1">PNG, JPG, WebP up to 5MB</p>
+          </div>
+        </div>
+
+        {# Preview State (shown when file is selected) #}
+        <div id="screenshot-preview-state" class="hidden">
+          <img
+            id="screenshot-preview-image"
+            src=""
+            alt="Preview of selected screenshot"
+            class="max-w-[300px] max-h-[200px] mx-auto object-contain mb-3"
+          />
+          <div class="text-sm text-neutral-600">
+            <p id="screenshot-file-name" class="font-medium"></p>
+            <p id="screenshot-file-size" class="text-neutral-400"></p>
+          </div>
+          <button
+            type="button"
+            id="screenshot-remove-btn"
+            class="mt-3 px-4 py-2 text-sm text-swiss-red border border-swiss-red rounded hover:bg-swiss-red hover:text-white transition-colors min-h-[44px] min-w-[44px]"
+            aria-label="Remove selected image"
+          >
+            Remove
+          </button>
+        </div>
+
+        {# Screen reader status announcements #}
+        <div id="screenshot-status" class="sr-only" aria-live="polite" aria-atomic="true"></div>
       </div>
-      <p id="screenshot-error" class="form-error hidden" role="alert"></p>
+
+      <p id="screenshot-error" class="form-error hidden mt-2" role="alert"></p>
     </div>
 
     {{ field.textarea('authenticity', 'Authenticity Explanation', 5, 'Explain how your demo authentically represents the design style. Reference specific typography, color, layout, and compositional choices...', true, 'Minimum 50 characters required') }}
@@ -117,15 +152,185 @@ permalink: /submit/
 <script src="{{ '/scripts/submission-form.js' | url }}" defer></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // File upload preview
-    const fileInput = document.getElementById('screenshot');
-    const fileName = document.getElementById('file-name');
+    // Enhanced screenshot upload with preview
+    const screenshotInput = document.getElementById('screenshot');
+    const uploadContainer = document.getElementById('screenshot-upload-container');
+    const uploadState = document.getElementById('screenshot-upload-state');
+    const previewState = document.getElementById('screenshot-preview-state');
+    const previewImage = document.getElementById('screenshot-preview-image');
+    const fileNameEl = document.getElementById('screenshot-file-name');
+    const fileSizeEl = document.getElementById('screenshot-file-size');
+    const removeBtn = document.getElementById('screenshot-remove-btn');
+    const statusEl = document.getElementById('screenshot-status');
+    const errorEl = document.getElementById('screenshot-error');
 
-    if (fileInput && fileName) {
-      fileInput.addEventListener('change', function() {
+    const MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
+    const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp'];
+
+    function formatFileSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    function showError(message) {
+      if (errorEl) {
+        errorEl.textContent = message;
+        errorEl.classList.remove('hidden');
+      }
+      if (uploadContainer) {
+        uploadContainer.classList.add('error');
+      }
+      if (screenshotInput) {
+        screenshotInput.setAttribute('aria-invalid', 'true');
+      }
+      // Announce to screen readers
+      if (statusEl) {
+        statusEl.textContent = 'Error: ' + message;
+      }
+    }
+
+    function clearError() {
+      if (errorEl) {
+        errorEl.textContent = '';
+        errorEl.classList.add('hidden');
+      }
+      if (uploadContainer) {
+        uploadContainer.classList.remove('error');
+      }
+      if (screenshotInput) {
+        screenshotInput.setAttribute('aria-invalid', 'false');
+      }
+    }
+
+    function showPreview(file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        if (previewImage) {
+          previewImage.src = e.target.result;
+        }
+        if (fileNameEl) {
+          fileNameEl.textContent = file.name;
+        }
+        if (fileSizeEl) {
+          fileSizeEl.textContent = formatFileSize(file.size);
+        }
+        if (uploadState) {
+          uploadState.classList.add('hidden');
+        }
+        if (previewState) {
+          previewState.classList.remove('hidden');
+        }
+        // Announce to screen readers
+        if (statusEl) {
+          statusEl.textContent = 'Image selected: ' + file.name + ', ' + formatFileSize(file.size);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function resetUploadVisualState() {
+      if (screenshotInput) {
+        screenshotInput.value = '';
+      }
+      if (previewImage) {
+        previewImage.src = '';
+      }
+      if (fileNameEl) {
+        fileNameEl.textContent = '';
+      }
+      if (fileSizeEl) {
+        fileSizeEl.textContent = '';
+      }
+      if (uploadState) {
+        uploadState.classList.remove('hidden');
+      }
+      if (previewState) {
+        previewState.classList.add('hidden');
+      }
+    }
+
+    function resetUpload() {
+      resetUploadVisualState();
+      clearError();
+      // Announce to screen readers
+      if (statusEl) {
+        statusEl.textContent = 'Image removed. Ready to upload a new image.';
+      }
+    }
+
+    function handleFile(file) {
+      clearError();
+
+      // Validate file type
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        resetUploadVisualState();
+        showError('Please upload a JPG, PNG, or WebP image');
+        return;
+      }
+
+      // Validate file size
+      if (file.size > MAX_SIZE_BYTES) {
+        resetUploadVisualState();
+        showError('Screenshot must be less than 5MB');
+        return;
+      }
+
+      // Show preview
+      showPreview(file);
+    }
+
+    if (screenshotInput) {
+      screenshotInput.addEventListener('change', function() {
         if (this.files && this.files[0]) {
-          fileName.textContent = 'Selected: ' + this.files[0].name;
-          fileName.classList.remove('hidden');
+          handleFile(this.files[0]);
+        }
+      });
+    }
+
+    if (removeBtn) {
+      removeBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        resetUpload();
+        // Focus back to upload area for keyboard users
+        if (screenshotInput) {
+          screenshotInput.focus();
+        }
+      });
+    }
+
+    // Drag and drop support
+    if (uploadContainer) {
+      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        uploadContainer.addEventListener(eventName, function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+        });
+      });
+
+      ['dragenter', 'dragover'].forEach(eventName => {
+        uploadContainer.addEventListener(eventName, function() {
+          uploadContainer.classList.add('drag-over');
+        });
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        uploadContainer.addEventListener(eventName, function() {
+          uploadContainer.classList.remove('drag-over');
+        });
+      });
+
+      uploadContainer.addEventListener('drop', function(e) {
+        const dt = e.dataTransfer;
+        if (dt && dt.files && dt.files[0]) {
+          // Set the file to the input for form submission
+          const dataTransfer = new DataTransfer();
+          dataTransfer.items.add(dt.files[0]);
+          if (screenshotInput) {
+            screenshotInput.files = dataTransfer.files;
+          }
+          handleFile(dt.files[0]);
         }
       });
     }

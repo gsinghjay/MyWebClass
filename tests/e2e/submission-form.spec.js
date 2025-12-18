@@ -444,15 +444,13 @@ test.describe('Submission Form Page', () => {
         buffer: buffer,
       });
 
-      const fileName = page.locator('#file-name');
+      // Story 4.3: Now shows file name in preview state
+      const fileName = page.locator('#screenshot-file-name');
       await expect(fileName).toBeVisible();
       await expect(fileName).toContainText('test-screenshot.png');
     });
 
     test('shows error for file over 5MB', async ({ page }) => {
-      // Wait for validation script to load
-      await page.waitForFunction(() => typeof window.validateSubmissionForm === 'function', { timeout: 5000 });
-
       // Create a buffer larger than 5MB (5.1MB)
       const largeBuffer = Buffer.alloc(5.1 * 1024 * 1024, 'x');
 
@@ -462,9 +460,7 @@ test.describe('Submission Form Page', () => {
         buffer: largeBuffer,
       });
 
-      // Trigger validation by submitting or blurring
-      await page.locator('button[type="submit"]').click();
-
+      // Story 4.3: Inline validation shows error immediately on file selection
       const error = page.locator('#screenshot-error');
       await expect(error).toBeVisible();
       await expect(error).toContainText('5MB');
@@ -724,6 +720,200 @@ test.describe('Submission Form Page', () => {
       expect(capturedPayload).not.toBeNull();
       expect(capturedPayload.consent).toBe(true);
       expect(capturedPayload.marketing).toBe(true);
+    });
+  });
+
+  test.describe('Screenshot Upload with Preview (Story 4.3)', () => {
+    test('shows upload area with instructions by default', async ({ page }) => {
+      const uploadState = page.locator('#screenshot-upload-state');
+      await expect(uploadState).toBeVisible();
+      await expect(page.locator('#screenshot-helper')).toContainText('Click to upload or drag and drop');
+    });
+
+    test('shows preview image after file selection', async ({ page }) => {
+      // Create a test image
+      const buffer = Buffer.alloc(100);
+      await page.setInputFiles('#screenshot', {
+        name: 'test-image.png',
+        mimeType: 'image/png',
+        buffer: buffer
+      });
+
+      await expect(page.locator('#screenshot-preview-state')).toBeVisible();
+      await expect(page.locator('#screenshot-preview-image')).toBeVisible();
+      await expect(page.locator('#screenshot-upload-state')).toBeHidden();
+    });
+
+    test('displays file name after selection', async ({ page }) => {
+      await page.setInputFiles('#screenshot', {
+        name: 'my-design-screenshot.png',
+        mimeType: 'image/png',
+        buffer: Buffer.alloc(100)
+      });
+
+      await expect(page.locator('#screenshot-file-name')).toContainText('my-design-screenshot.png');
+    });
+
+    test('displays file size in human-readable format', async ({ page }) => {
+      // Create a ~1.5MB buffer
+      const buffer = Buffer.alloc(1.5 * 1024 * 1024);
+      await page.setInputFiles('#screenshot', {
+        name: 'large-image.png',
+        mimeType: 'image/png',
+        buffer: buffer
+      });
+
+      await expect(page.locator('#screenshot-file-size')).toContainText('MB');
+    });
+
+    test('shows error for files over 5MB', async ({ page }) => {
+      // Create a 6MB buffer
+      const buffer = Buffer.alloc(6 * 1024 * 1024);
+      await page.setInputFiles('#screenshot', {
+        name: 'huge-image.png',
+        mimeType: 'image/png',
+        buffer: buffer
+      });
+
+      await expect(page.locator('#screenshot-error')).toBeVisible();
+      await expect(page.locator('#screenshot-error')).toContainText('less than 5MB');
+      // Preview should not be shown
+      await expect(page.locator('#screenshot-preview-state')).toBeHidden();
+    });
+
+    test('shows error for non-image files', async ({ page }) => {
+      await page.setInputFiles('#screenshot', {
+        name: 'document.pdf',
+        mimeType: 'application/pdf',
+        buffer: Buffer.alloc(100)
+      });
+
+      await expect(page.locator('#screenshot-error')).toBeVisible();
+      await expect(page.locator('#screenshot-error')).toContainText('JPG, PNG, or WebP');
+    });
+
+    test('remove button clears preview and resets input', async ({ page }) => {
+      await page.setInputFiles('#screenshot', {
+        name: 'test-image.png',
+        mimeType: 'image/png',
+        buffer: Buffer.alloc(100)
+      });
+
+      await expect(page.locator('#screenshot-preview-state')).toBeVisible();
+
+      await page.click('#screenshot-remove-btn');
+
+      await expect(page.locator('#screenshot-preview-state')).toBeHidden();
+      await expect(page.locator('#screenshot-upload-state')).toBeVisible();
+    });
+
+    test('remove button has accessible label', async ({ page }) => {
+      await page.setInputFiles('#screenshot', {
+        name: 'test-image.png',
+        mimeType: 'image/png',
+        buffer: Buffer.alloc(100)
+      });
+
+      await expect(page.locator('#screenshot-remove-btn')).toHaveAttribute('aria-label', 'Remove selected image');
+    });
+
+    test('remove button meets 44px touch target', async ({ page }) => {
+      await page.setInputFiles('#screenshot', {
+        name: 'test-image.png',
+        mimeType: 'image/png',
+        buffer: Buffer.alloc(100)
+      });
+
+      const removeBtn = page.locator('#screenshot-remove-btn');
+      const box = await removeBtn.boundingBox();
+      expect(box?.height).toBeGreaterThanOrEqual(44);
+    });
+
+    test('can replace image by selecting a new file', async ({ page }) => {
+      // Select first image
+      await page.setInputFiles('#screenshot', {
+        name: 'first-image.png',
+        mimeType: 'image/png',
+        buffer: Buffer.alloc(100)
+      });
+
+      await expect(page.locator('#screenshot-file-name')).toContainText('first-image.png');
+
+      // Select second image (simulating new file selection via remove + re-select)
+      await page.click('#screenshot-remove-btn');
+      await page.setInputFiles('#screenshot', {
+        name: 'second-image.png',
+        mimeType: 'image/png',
+        buffer: Buffer.alloc(200)
+      });
+
+      await expect(page.locator('#screenshot-file-name')).toContainText('second-image.png');
+    });
+
+    test('screen reader status element exists', async ({ page }) => {
+      const statusEl = page.locator('#screenshot-status');
+      await expect(statusEl).toBeAttached();
+      await expect(statusEl).toHaveAttribute('aria-live', 'polite');
+    });
+
+    test('accepts valid JPG file', async ({ page }) => {
+      await page.setInputFiles('#screenshot', {
+        name: 'photo.jpg',
+        mimeType: 'image/jpeg',
+        buffer: Buffer.alloc(100)
+      });
+
+      await expect(page.locator('#screenshot-preview-state')).toBeVisible();
+      await expect(page.locator('#screenshot-error')).toBeHidden();
+    });
+
+    test('accepts valid WebP file', async ({ page }) => {
+      await page.setInputFiles('#screenshot', {
+        name: 'image.webp',
+        mimeType: 'image/webp',
+        buffer: Buffer.alloc(100)
+      });
+
+      await expect(page.locator('#screenshot-preview-state')).toBeVisible();
+      await expect(page.locator('#screenshot-error')).toBeHidden();
+    });
+
+    test('shows drag-over visual feedback', async ({ page }) => {
+      const container = page.locator('#screenshot-upload-container');
+
+      // Simulate dragenter event in browser context
+      await page.evaluate(() => {
+        const el = document.getElementById('screenshot-upload-container');
+        const event = new DragEvent('dragenter', { bubbles: true, cancelable: true });
+        el.dispatchEvent(event);
+      });
+
+      // Should have drag-over class
+      await expect(container).toHaveClass(/drag-over/);
+
+      // Simulate dragleave event
+      await page.evaluate(() => {
+        const el = document.getElementById('screenshot-upload-container');
+        const event = new DragEvent('dragleave', { bubbles: true, cancelable: true });
+        el.dispatchEvent(event);
+      });
+
+      // Should remove drag-over class
+      await expect(container).not.toHaveClass(/drag-over/);
+    });
+
+    test('announces errors to screen readers via status element', async ({ page }) => {
+      // Upload invalid file type
+      await page.setInputFiles('#screenshot', {
+        name: 'document.pdf',
+        mimeType: 'application/pdf',
+        buffer: Buffer.alloc(100)
+      });
+
+      // Status element should contain error message for screen readers
+      const statusEl = page.locator('#screenshot-status');
+      await expect(statusEl).toContainText('Error');
+      await expect(statusEl).toContainText('JPG, PNG, or WebP');
     });
   });
 });

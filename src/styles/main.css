@@ -110,6 +110,17 @@
     @apply border-green-600;
   }
 
+  /* Screenshot upload error state - matches form-input pattern */
+  #screenshot-upload-container[aria-invalid="true"],
+  #screenshot-upload-container.error {
+    @apply border-red-600;
+  }
+
+  /* Screenshot upload drag-over state */
+  #screenshot-upload-container.drag-over {
+    @apply border-swiss-red bg-red-50;
+  }
+
   .card {
     @apply border-2 border-black bg-white transition-shadow;
   }
