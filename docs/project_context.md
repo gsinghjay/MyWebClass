@@ -6,7 +6,7 @@
 
 **Type:** Static Web Application with Headless CMS (JAMstack)
 **Stack:** Eleventy 3.1.2 + Sanity CMS + Tailwind CSS 3.4.18
-**Deployment:** GitHub Pages
+**Deployment:** Netlify (static + serverless functions)
 **Status:** Brownfield (existing codebase)
 
 ## Critical Rules
@@ -25,7 +25,7 @@
 ### DON'T
 
 - Don't create custom authentication — use Sanity Studio native auth
-- Don't build serverless functions — use Make webhook for form handling
+- Don't use Netlify Forms — use Netlify Function for form handling
 - Don't hardcode Sanity credentials — use environment variables
 - Don't let Sanity fetch failures crash the build — graceful degradation
 - Don't use truthy checks on arrays in Nunjucks (arrays are always truthy)
@@ -38,9 +38,9 @@
 | Templating | Nunjucks | — |
 | Styling | Tailwind CSS | 3.4.18 |
 | CMS | Sanity | v3 |
-| Forms | Make webhook | — |
+| Forms | Netlify Function | — |
 | CRM | Airtable | Free tier |
-| Hosting | GitHub Pages | — |
+| Hosting | Netlify | — |
 
 ## Directory Structure
 
@@ -51,6 +51,10 @@ src/
 ├── pages/           # Page templates
 ├── scripts/         # Client-side JS (minimal)
 └── styles/          # Tailwind CSS entry
+
+netlify/
+└── functions/
+    └── submit-form.js  # Form submission handler
 
 studio/              # Sanity Studio (separate)
 └── schemas/         # Document type definitions
@@ -115,21 +119,31 @@ export default async function() {
 ```
 User submits form (src/pages/submit.njk)
        ↓
-POST to Make webhook (MAKE_WEBHOOK_URL env var)
+POST to /.netlify/functions/submit-form
        ↓
-Make scenario:
-  1. Create Sanity document (status: pending)
-  2. Create Airtable record
-  3. Fire Discord webhook
+Netlify Function:
+  1. Upload screenshot to Sanity CDN [blocking]
+  2. Create gallerySubmission document (status: pending) [blocking]
+  3. Send Discord notification [non-blocking]
+  4. Sync to Airtable CRM [non-blocking]
+       ↓
+Return success/error to client
 ```
+
+**Note:** We use Netlify Functions, NOT Netlify Forms. The function handles image upload, Sanity mutations, and integrations.
 
 ## Environment Variables
 
 ```bash
+# Required
 SANITY_PROJECT_ID=xxx        # Sanity project ID
 SANITY_DATASET=production    # Dataset name
-SANITY_API_TOKEN=sk-xxx      # Read token (build only)
-MAKE_WEBHOOK_URL=https://... # Form submission endpoint
+SANITY_API_TOKEN=sk-xxx      # Write token (for form submission)
+
+# Optional
+DISCORD_WEBHOOK_URL=https://... # Discord notifications
+AIRTABLE_API_KEY=pat...         # Airtable CRM sync
+AIRTABLE_BASE_ID=app...         # Airtable base
 ```
 
 ## Accessibility Requirements
